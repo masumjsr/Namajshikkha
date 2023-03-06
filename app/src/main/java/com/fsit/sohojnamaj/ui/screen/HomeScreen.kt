@@ -1,30 +1,33 @@
 package com.fsit.sohojnamaj.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationCity
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fsit.sohojnamaj.R
+import com.fsit.sohojnamaj.model.Prayer
+import com.fsit.sohojnamaj.model.PrayerRange
+import com.fsit.sohojnamaj.ui.util.PulsatingCircles
 import com.fsit.sohojnamaj.ui.viewModel.HomeViewModel
 import com.fsit.sohojnamaj.util.calender.bangla.Bongabdo
 import com.fsit.sohojnamaj.util.calender.primecalendar.civil.CivilCalendar
@@ -32,19 +35,28 @@ import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
 import java.util.*
 
 @Composable
-fun HomeScreenRoute() {
-HomeScreen()
+fun HomeScreenRoute(
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val current by viewModel.currentPrayer.collectAsStateWithLifecycle()
+    val context= LocalView.current.context
+    viewModel.setupAlerm(context)
+ HomeScreen(
+     current =current
+ )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-     viewModel: HomeViewModel = hiltViewModel()
-) {
+fun HomeScreen(current: Prayer) {
     Scaffold(
         topBar = {
             TopAppBar (
-                title = { Text(text = "নামাজ শিক্ষা - বাংলাদেশ") },
+                title = {
+                    Text(
+                        text = "নামাজের সময়"
+                    )
+                        },
                 actions = {
                     Icon(
                         modifier =Modifier
@@ -57,6 +69,9 @@ fun HomeScreen(
         }
     ) {paddingValues->
         val context = LocalView.current.context
+
+
+
 
         Column(
             modifier = Modifier
@@ -85,28 +100,28 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
 
                     ) {
-                        Canvas(modifier = Modifier.size(10.dp), onDraw = {
-                            drawCircle(color = Color.White)
-                        })
+                        PulsatingCircles()
                         Text(
                             modifier = Modifier
                                 .padding(start = 10.dp),
-                            text = "মাগরিব",
+                            text = current.name?:"-",
                             style = MaterialTheme.typography.titleMedium)
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
-                            text = "6:03 pm - 7:17 pm",
+                            text = current.text,
                             style = MaterialTheme.typography.titleMedium)
                     }
 
-                    Text(text = "সময় বাকিঃ ৪৪ মিনিট",
+
+                    Text(text = "সময় বাকিঃ ${current.timeLeft}",
                         style = MaterialTheme.typography.titleSmall)
+
 
                     LinearProgressIndicator(
                         modifier = Modifier
                             .padding(top = 10.dp, bottom = 10.dp)
                             .fillMaxWidth(),
-                        progress = 0.4f,
+                        progress = current.progress,
                         color = Color.White,
                         trackColor = Color.White.copy(0.3f)
                     )
@@ -183,7 +198,7 @@ private fun DateSection() {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val calendar = HijriCalendar(locale = Locale("bn"))
+        val calendar = HijriCalendar()
         val englishCalendar = CivilCalendar(locale = Locale("bn"))
         Column() {
             Text(
@@ -219,7 +234,9 @@ private fun DateSection() {
 @Composable
 
 fun PreviewHomeScreen() {
-    HomeScreen()
+    HomeScreen(
+        current = Prayer(name = "মাগরিব", PrayerRange(0,1234,1234),text="7:10 PM - 5:50 AM")
+    )
 
 }
 

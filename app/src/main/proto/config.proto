@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "com.masum.datastore";
+option java_multiple_files = true;
+
+
+message Config {
+  string unityAd=1;
+  string startAppAd=2;
+  string appStore=3;
+  string telegram=4;
+  string facebook=5;
+  string twitter=6;
+  string youtube=7;
+  int32 veersion=8;
+}

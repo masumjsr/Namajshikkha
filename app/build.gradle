@@ -11,7 +11,7 @@ protobuf {
     protoc {
         artifact = 'com.google.protobuf:protoc:3.21.12'
     }
-
+//  heleditor_basics
 
     generateProtoTasks {
         all().each { task ->
@@ -118,11 +118,12 @@ dependencies {
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
     implementation "androidx.navigation:navigation-compose"
     implementation "androidx.hilt:hilt-navigation-compose:1.0.0"
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0-rc01'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.0-rc01'
 
-
-    
 
 
 
@@ -163,6 +164,17 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlin.serialization)
+
+    implementation(libs.androidx.tracing.ktx)
+
+
+    implementation 'androidx.tracing:tracing:1.1.0'
+
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.0-rc01"
+
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
+    implementation 'androidx.work:work-runtime-ktx:2.8.0'
+
 
 }
 kapt {

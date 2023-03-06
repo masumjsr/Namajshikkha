@@ -11,12 +11,13 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.http.GET
+import retrofit2.http.Path
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private interface RetrofitNetworkApi {
-    @GET(value = "/v1/timings?latitude=22.9055&longitude=89.2194&month=2&year=2023&method=1&school=1&date=26")
-    suspend fun getPrayerTime(): PrayerTimeResponse
+    @GET(value = "/v1/calendar/2023/{month}?latitude=22.9055&longitude=89.2194&method=1&school=1&iso8601=true")
+    suspend fun getPrayerTime(@Path("month") month: Int): PrayerTimeResponse
 
 }
 
@@ -43,5 +44,5 @@ class RetrofitNetwork @Inject constructor(
         .build()
         .create(RetrofitNetworkApi::class.java)
 
-    override suspend fun getPrayerTime():PrayerTimeResponse= networkApi.getPrayerTime()
+    override suspend fun getPrayerTime(month:Int):PrayerTimeResponse= networkApi.getPrayerTime(month)
 }

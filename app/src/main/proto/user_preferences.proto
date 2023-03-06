@@ -1,0 +1,17 @@
+syntax = "proto3";
+option java_package = "com.fsit.sohojnamaj";
+option java_multiple_files = true;
+
+
+message UserPreferences {
+  string  fajr=1;
+  string sunrise=2;
+  string dhuhr=3;
+  string asr=4;
+  string sunset=5;
+  string maghrib=6;
+  string isha=7;
+  string midnight=8;
+  string firstthird=9;
+  string lastthird=10;
+}

@@ -3,6 +3,7 @@ package com.fsit.sohojnamaj
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ import com.fsit.sohojnamaj.ui.navigation.rememberAppState
 import com.fsit.sohojnamaj.ui.theme.NamajShikkhaTheme
 import com.fsit.sohojnamaj.util.praytimes.PrayTime
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -31,8 +33,17 @@ class MainActivity : ComponentActivity() {
 
 
 
+        val locale = Locale("bn")
+        Locale.setDefault(locale)
+        val config = resources.configuration
+        config.setLocale(locale)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            createConfigurationContext(config)
+        resources.updateConfiguration(config, resources.displayMetrics)
         setContent {
-            NamajShikkhaTheme {
+            NamajShikkhaTheme (darkTheme = false,dynamicColor = false){
+                java.util.Locale.setDefault(java.util.Locale("bn"))
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
