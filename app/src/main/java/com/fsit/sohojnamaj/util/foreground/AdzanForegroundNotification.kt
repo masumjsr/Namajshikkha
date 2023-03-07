@@ -32,8 +32,8 @@ class AdzanForegroundNotification(appContext: Context, workerParams: WorkerParam
             mp.setDataSource(applicationContext, Uri.parse("android.resource://"+applicationContext.packageName+"/"+Prefs.muadzin))
             mp.prepare()
             mp.start()
-            emitter.onSuccess(Result.success())
             mp.setOnCompletionListener {
+                emitter.onSuccess(Result.success())
                 applicationContext.createNotification("Fazor waqt ")
             }
         }

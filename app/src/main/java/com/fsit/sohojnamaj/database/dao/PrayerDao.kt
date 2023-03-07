@@ -16,7 +16,7 @@ interface PrayerDao {
     )
     fun getPrayerTimes(): Flow<List<PrayerTime>>
     @Query("Select * from prayerTime where date=:date")
-    fun getPrayer(date: String): Flow<PrayerTime>
+    fun getPrayer(date: String): Flow<PrayerTime?>
     @Upsert
     suspend fun updatePrayerTime(prayerTime: List<PrayerTime>)
     @Upsert

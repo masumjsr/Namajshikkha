@@ -61,6 +61,7 @@ class AdzanReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.i("123321", "onReceive: adazan received")
         notificationManager  = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val triggerTime = intent?.getLongExtra(EXTRA_TRIGGER_TIME,0)?:0
@@ -87,15 +88,17 @@ class AdzanReceiver : BroadcastReceiver() {
 
 
 
-               val alermModel = AlarmModel(
-                   fajr = waqtData.Fajr.toISO8601Date(),
-                   dhur = waqtData.Dhuhr.toISO8601Date(),
-                   asr =waqtData.Asr.toISO8601Date(),
-                   magrib = waqtData.Maghrib.toISO8601Date(),
-                   isha = waqtData.Isha.toISO8601Date(),
-                   nextFajr = tomorrowPrayer.Fajr.toISO8601Date()
-               )
-              PrayTime.schedule(context,alermModel)
+               waqtData?.let {waqtData->
+                   val alermModel = AlarmModel(
+                       fajr = waqtData.Fajr.toISO8601Date(),
+                       dhur = waqtData.Dhuhr.toISO8601Date(),
+                       asr =waqtData.Asr.toISO8601Date(),
+                       magrib = waqtData.Maghrib.toISO8601Date(),
+                       isha = waqtData.Isha.toISO8601Date(),
+                       nextFajr = tomorrowPrayer?.Fajr.toISO8601Date()
+                   )
+                   PrayTime.schedule(context,alermModel)
+               }
 
 
 

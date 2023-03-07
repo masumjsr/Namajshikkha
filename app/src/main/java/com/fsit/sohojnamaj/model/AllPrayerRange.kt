@@ -12,5 +12,6 @@ data class AllPrayerRange(
     val magribRange:PrayerRange=PrayerRange(),
     val ishaRange:PrayerRange=PrayerRange(),
     val nextFajrRange:PrayerRange=PrayerRange(),
+    val nextMagribRange:PrayerRange=PrayerRange(),
 
     )

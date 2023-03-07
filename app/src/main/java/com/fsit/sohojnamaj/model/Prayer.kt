@@ -6,5 +6,13 @@ data class Prayer(
     val index:Int=0,
     val text:String="",
     val timeLeft:String="",
-    val progress:Float=0f
+    val progress:Float=0f,
+    val next:String="",
+    val nextText:String="",
+    val forbiddenRange:Boolean= false,
+    val isIfterOver:Boolean=false,
+    val nextSahari:String="",
+    val nextIfter:String="",
+    val nextTimeLeft:String="",
+    val forbiddenTime:List<ForbiddenTime> = emptyList()
 )

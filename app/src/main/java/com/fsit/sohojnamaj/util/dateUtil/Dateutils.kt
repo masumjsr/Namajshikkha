@@ -29,10 +29,15 @@ fun yesterday(
     val today = SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).format(calender.time)
     return today
 }
-fun String.toISO8601Date(): Long {
+fun String?.toISO8601Date(): Long {
     val df1: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
-    val string1 = this.substringBefore("+")
-    return df1.parse(string1).time
+    val string1 = this?.substringBefore("+")
+    return try {
+        df1.parse(string1).time
+    } catch (e: Exception) {
+       -1
+
+    }
 }
 
 fun List<Long?>.findClosest(input: Long) = fold(null) { acc: Long?, num ->
@@ -49,13 +54,15 @@ fun PrayerRange?.toTimeFormat():String{
     }
     else return "-"
 }
+fun Long?.toTimeFormat():String{
+    return if(this!=null){
+        SimpleDateFormat("hh:mm a", Locale.getDefault()).format(this)
+    }
+    else return "-"
+}
 fun PrayerRange?.timeLeft():String{
     return if(this!=null){
-        Log.i(
-            "123321",
-            "timeLeft: System = ${System.currentTimeMillis()} target= ${this.end}  difference= ${this.end - System.currentTimeMillis()} which is "
-        + SimpleDateFormat("hh:mm", Locale.getDefault()).format((this.end-System.currentTimeMillis()))
-        )
+
 
         val calendar = Calendar.getInstance()
 
@@ -68,14 +75,45 @@ fun PrayerRange?.timeLeft():String{
 
 
         val elapsedHours = different / hoursInMilli
-        different = different % hoursInMilli
+        different %= hoursInMilli
 
         val elapsedMinutes = different / minutesInMilli
-        different = different % minutesInMilli
+        different %= minutesInMilli
+
+        val elapsedSecond = different / secondsInMilli
+        different %= secondsInMilli
+
+
+        "${translateNumbersToBangla(elapsedHours.toString())} ঘন্টা ${translateNumbersToBangla(elapsedMinutes.toString())} মিনিট ${translateNumbersToBangla(elapsedSecond.toString())} সেকেন্ড"
+    }
+    else return "-"
+}
+fun Long?.timeLeft():String{
+    return if(this!=null){
+
+
+        val calendar = Calendar.getInstance()
+
+        var different: Long = this - System.currentTimeMillis()
+
+
+        val secondsInMilli: Long = 1000
+        val minutesInMilli = secondsInMilli * 60
+        val hoursInMilli = minutesInMilli * 60
+
+
+        val elapsedHours = different / hoursInMilli
+        different %= hoursInMilli
+
+        val elapsedMinutes = different / minutesInMilli
+        different %= minutesInMilli
+
+        val elapsedSecond = different / secondsInMilli
+        different %= secondsInMilli
 
 
         "${translateNumbersToBangla(elapsedHours.toString())} ঘন্টা ${translateNumbersToBangla(elapsedMinutes.toString())} মিনিট"
     }
     else return "-"
 }
-fun Int.toMilisFromMinutes()=this*1000L
+fun Int.toMilisFromMinutes()=this*1000L*60

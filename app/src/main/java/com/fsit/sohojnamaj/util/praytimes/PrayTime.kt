@@ -6,6 +6,7 @@ import android.util.Log
 import com.fsit.sohojnamaj.data.Prefs
 import com.fsit.sohojnamaj.model.AlarmModel
 import com.fsit.sohojnamaj.util.AlarmHelper
+import com.fsit.sohojnamaj.util.dateUtil.toDateFormat
 import com.fsit.sohojnamaj.util.receiver.AdzanReceiver
 
 class PrayTime{
@@ -69,6 +70,7 @@ class PrayTime{
             prayer: PraytimeType,
             ringType: Int
         ) {
+            Log.i("123321", "configureAdzanScheduler: alerm set at ${triggerTime.toDateFormat()}")
             val alarmMgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val alarmIntent =
                 AdzanReceiver.getPendingIntent(this, requestCode, triggerTime, prayer, ringType)

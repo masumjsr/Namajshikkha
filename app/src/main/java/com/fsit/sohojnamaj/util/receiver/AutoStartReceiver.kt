@@ -30,15 +30,17 @@ class AutoStartReceiver : BroadcastReceiver() {
 
 
 
-                val alermModel = AlarmModel(
-                    fajr = waqtData.Fajr.toISO8601Date(),
+                waqtData?.let {waqtData->
+                    val alermModel = AlarmModel(
+                            fajr = waqtData.Fajr.toISO8601Date(),
                     dhur = waqtData.Dhuhr.toISO8601Date(),
                     asr =waqtData.Asr.toISO8601Date(),
                     magrib = waqtData.Maghrib.toISO8601Date(),
                     isha = waqtData.Isha.toISO8601Date(),
-                    nextFajr = tomorrowPrayer.Fajr.toISO8601Date()
-                )
-                PrayTime.schedule(context,alermModel)
+                    nextFajr = tomorrowPrayer?.Fajr.toISO8601Date()
+                    )
+                    PrayTime.schedule(context,alermModel)
+                }
 
 
 

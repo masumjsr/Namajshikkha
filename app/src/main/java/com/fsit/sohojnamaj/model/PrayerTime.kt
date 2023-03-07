@@ -9,7 +9,7 @@ data class PrayerTime(
     val date:String="",
     val Asr: String="",
     val Dhuhr: String="",
-    val Fajr: String="",
+    val Fajr: String?=null,
     val Firstthird: String="",
     val Imsak: String="",
     val Isha: String="",
