@@ -1,6 +1,7 @@
 package com.fsit.sohojnamaj.datastore
 
 import androidx.datastore.core.DataStore
+import com.fsit.sohojnamaj.PrayerTime
 import com.fsit.sohojnamaj.UserPreferences
 import com.fsit.sohojnamaj.copy
 import com.fsit.sohojnamaj.model.Timings
@@ -14,29 +15,32 @@ class PreferencesDataSource @Inject constructor(
     val userdata = userPreferences.data
         .map {
             UserData(
+
                 fajr = it.fajr,
                 sunrise = it.sunrise,
                 dhur = it.dhuhr,
                 asr = it.asr,
                 maghrib = it.maghrib,
                 isha = it.isha,
-                midnight = it.midnight,
-                firstThird = it.firstthird,
-                lastThird = it.lastthird
+                previousIsha = it.previousIsha,
+                nextFajr = it.nextFajr,
+                nextMagrib = it.nextMaghrib
+
             )
         }
-    suspend fun updateUserData(userData: Timings){
+    suspend fun updateUserData(userData: UserData){
         userPreferences.updateData {
             it.copy {
-                fajr = userData.Fajr
-                sunrise = userData.Sunrise
-                dhuhr = userData.Dhuhr
-                asr = userData.Asr
-                maghrib = userData.Maghrib
-                isha = userData.Isha
-                midnight = userData.Midnight
-                firstthird = userData.Firstthird
-                lastthird = userData.Lastthird
+                fajr = userData.fajr?:""
+                sunrise = userData.sunrise?:""
+                dhuhr = userData.dhur?:""
+                asr = userData.asr?:""
+                maghrib = userData.maghrib?:""
+                isha = userData.isha?:""
+                previousIsha= userData.previousIsha
+                nextFajr=userData.nextFajr
+                nextMaghrib=userData.nextMagrib
+
             }
 
         }

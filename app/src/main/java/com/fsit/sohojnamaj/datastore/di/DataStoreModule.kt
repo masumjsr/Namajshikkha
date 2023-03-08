@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
+import com.fsit.sohojnamaj.PrayerPreferences
 import com.fsit.sohojnamaj.UserPreferences
+import com.fsit.sohojnamaj.datastore.PrayerPreferencesSerializer
 import com.fsit.sohojnamaj.network.Dispatcher
 import com.fsit.sohojnamaj.network.Dispatchers
 import com.fsit.sohojnamaj.datastore.UserPreferencesSerializer
@@ -35,5 +37,20 @@ object DataStoreModule {
         ){
 
             context.dataStoreFile("user_preferences.pb")
+        }
+
+    @Provides
+    @Singleton
+    fun providesPrayerPreferencesDataStore(
+        @ApplicationContext context : Context,
+        @Dispatcher(Dispatchers.IO) ioDispatcher: CoroutineDispatcher,
+        PrayerPreferencesSerializer: PrayerPreferencesSerializer
+    ): DataStore<PrayerPreferences> =
+        DataStoreFactory.create(
+            serializer = PrayerPreferencesSerializer,
+            scope = CoroutineScope(ioDispatcher + SupervisorJob())
+        ){
+
+            context.dataStoreFile("prayer_preferences.pb")
         }
 }

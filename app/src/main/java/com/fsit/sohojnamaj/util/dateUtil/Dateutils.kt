@@ -39,6 +39,16 @@ fun String?.toISO8601Date(): Long {
 
     }
 }
+fun String?.toDate(): Long {
+    val df1: DateFormat = SimpleDateFormat("HH:mm dd MM yyyy", Locale.ENGLISH)
+    val string1 = this?.substringBefore("+")
+    return try {
+        df1.parse(string1).time
+    } catch (e: Exception) {
+       -1
+
+    }
+}
 
 fun List<Long?>.findClosest(input: Long) = fold(null) { acc: Long?, num ->
     val closest = if (num!!<= input && (acc == null || num!! > acc)) num else acc

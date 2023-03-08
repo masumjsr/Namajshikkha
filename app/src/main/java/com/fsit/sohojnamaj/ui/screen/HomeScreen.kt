@@ -1,14 +1,9 @@
 package com.fsit.sohojnamaj.ui.screen
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
@@ -19,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fsit.sohojnamaj.R
-import com.fsit.sohojnamaj.model.ForbiddenTime
 import com.fsit.sohojnamaj.model.Prayer
 import com.fsit.sohojnamaj.model.PrayerRange
 import com.fsit.sohojnamaj.ui.util.PulsatingCircles
@@ -37,27 +31,25 @@ import com.fsit.sohojnamaj.util.calender.bangla.Bongabdo
 import com.fsit.sohojnamaj.util.calender.primecalendar.civil.CivilCalendar
 import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
 import java.util.*
-import java.util.logging.Handler
 
 @Composable
 fun HomeScreenRoute(
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
+    onSettingClick: () -> Unit
 ) {
     val current by viewModel.currentPrayer.collectAsStateWithLifecycle()
+    val currentWaqt by viewModel.currentWaqt.collectAsStateWithLifecycle()
     val context= LocalView.current.context
-    android.os.Handler().postDelayed(
-        {
-            viewModel.setupAlerm(context)
-        },5000
-    )
+
  HomeScreen(
-     current =current
+     current =currentWaqt,
+     onSettingClick=onSettingClick
  )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(current: Prayer?) {
+fun HomeScreen(current: Prayer?, onSettingClick:()-> Unit,) {
     Scaffold(
         topBar = {
             TopAppBar (
@@ -67,11 +59,13 @@ fun HomeScreen(current: Prayer?) {
                     )
                         },
                 actions = {
-                    Icon(
-                        modifier =Modifier
-                            .padding(5.dp),
-                        imageVector =Icons.Default.Settings,
-                        contentDescription ="Settings")
+                    IconButton(onClick = { onSettingClick.invoke()}) {
+                        Icon(
+                            modifier =Modifier
+                                .padding(5.dp),
+                            imageVector =Icons.Default.Settings,
+                            contentDescription ="Settings")
+                    }
 
                 }
             )
@@ -82,25 +76,74 @@ fun HomeScreen(current: Prayer?) {
 
 
 
-        Column(
+        LazyColumn(
             modifier = Modifier
+
                 .padding(top = paddingValues.calculateTopPadding(), start = 16.dp, end = 16.dp)
                 .fillMaxWidth()
         ){
-            Log.i("123321", "HomeScreen: is forbidden= ${current?.forbiddenRange}")
 
-            DateSection()
-            CurrentWaqt(current)
+            item {
+                DateSection()
+                CurrentWaqt(current)
 
-            NextWaqt(current)
-            Sahari(current)
-            Forbidden(current)
+                NextWaqt(current)
+                Sahari(current)
+                ItemList()
+                Forbidden(current)
+            }
 
             }
             }
 
 
         }
+
+@Composable
+fun ItemList() {
+        Row(
+        modifier =Modifier.fillMaxWidth(),
+        ){
+         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+    }
+    Row(
+        modifier =Modifier.fillMaxWidth(),
+    ){
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+    }
+    Row(
+        modifier =Modifier.fillMaxWidth(),
+    ){
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+    }
+}
+
+@Composable
+fun RowScope.ItemCard(icon: Int, title: String) {
+    Column(
+        modifier = Modifier
+            .padding(top = 16.dp)
+            .weight(0.333f),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            modifier=Modifier.size(30.dp),
+            painter = painterResource(id = icon), contentDescription = "icon")
+        Text(
+            modifier = Modifier.padding(top= 8.dp),
+            text=title, style = MaterialTheme.typography.bodySmall,
+            maxLines = 1
+        )
+
+    }
+
+}
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -112,7 +155,9 @@ private fun Forbidden(current: Prayer?) {
             .fillMaxWidth(),
         border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.error)
     ) {
-        Column {
+        Column (
+            modifier = Modifier.padding(8.dp)
+                ){
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,11 +171,9 @@ private fun Forbidden(current: Prayer?) {
                     .fillMaxWidth()
                     .padding(10.dp)
             )
-            LazyColumn(
-                modifier = Modifier
-                    .padding(10.dp)
-            ) {
-                items(current?.forbiddenTime ?: emptyList()) {
+
+            current?.forbiddenTime?.let {
+                it.forEach {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -150,6 +193,7 @@ private fun Forbidden(current: Prayer?) {
 
                 }
             }
+
         }
     }
 }
@@ -165,44 +209,72 @@ private fun Sahari(current: Prayer?) {
             contentColor = Color.White
         )
     ) {
-        Column(
+        if (current?.isIfterOver == true) {
+            Text(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
+                text = "আগামীকালের সময়সুচী",
+                style = MaterialTheme.typography.titleSmall,
+                textAlign = TextAlign.Center
+            )
+        }
+        Row(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(8.dp)
+                .fillMaxWidth()
         ) {
 
-            if (current?.isIfterOver == true) {
-                Text(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    text = "আগামীকালের সময়সুচী",
-                    style = MaterialTheme.typography.titleSmall
-                )
-            }
 
-            LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-                item { Text(text = "সাহারী শেষ", style = MaterialTheme.typography.bodySmall) }
-                item {
+                Column(
+                    modifier = Modifier.weight(0.33f)
+                ) {
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "সাহারী শেষ", style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                         text = current?.nextSahari ?: "-",
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center
                     )
+
                 }
-                item {
-                    Text(
-                        text = "পরবর্তী ${if (current?.isIfterOver == true) "সাহারি" else "ইফতার"}",
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center
-                    )
-                }
-                item { Text(text = "ইফতার", style = MaterialTheme.typography.bodySmall) }
-                item { Text(text = "6:03 PM", style = MaterialTheme.typography.bodyMedium) }
-                item {
-                    Text(
-                        text = current?.nextTimeLeft ?: "-",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+           Column (
+                modifier = Modifier.weight(0.33f)
+            ) {
+
+               Text(
+                   modifier = Modifier.fillMaxWidth(),
+                   text = "ইফতার", style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                 Text(
+                     modifier = Modifier
+                         .fillMaxWidth()
+                         .padding(8.dp),
+                     text = current?.nextIfter ?: "-", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+
+
+            }
+            Column(
+                modifier = Modifier.weight(0.33f)
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                text = "পরবর্তী ${if (current?.isIfterOver == true) "সাহারি" else "ইফতার"}",
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center
+            )
+
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    text = current?.nextTimeLeft ?: "-",
+                    style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center
+                )
+
             }
         }
     }
@@ -350,7 +422,9 @@ private fun DateSection() {
 
 fun PreviewHomeScreen() {
     HomeScreen(
-        current = Prayer(name = "মাগরিব", PrayerRange(0,1234,1234),text="7:10 PM - 5:50 AM")
+        current = Prayer(name = "মাগরিব", PrayerRange(0,1234,1234),text="7:10 PM - 5:50 AM"),
+        onSettingClick = {},
+
     )
 
 }

@@ -9,12 +9,12 @@ import android.util.Log
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
+import com.fsit.sohojnamaj.PrayerTime
 import com.fsit.sohojnamaj.constants.RingType
 import com.fsit.sohojnamaj.data.repository.PrayerRepository
 import com.fsit.sohojnamaj.model.AlarmModel
 import com.fsit.sohojnamaj.util.dateUtil.*
 import com.fsit.sohojnamaj.util.foreground.AdzanForegroundNotification
-import com.fsit.sohojnamaj.util.praytimes.PrayTime
 import com.fsit.sohojnamaj.util.praytimes.PraytimeType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -97,7 +97,7 @@ class AdzanReceiver : BroadcastReceiver() {
                        isha = waqtData.Isha.toISO8601Date(),
                        nextFajr = tomorrowPrayer?.Fajr.toISO8601Date()
                    )
-                   PrayTime.schedule(context,alermModel)
+
                }
 
 

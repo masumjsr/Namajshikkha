@@ -8,7 +8,6 @@ import com.fsit.sohojnamaj.model.AlarmModel
 import com.fsit.sohojnamaj.util.dateUtil.toISO8601Date
 import com.fsit.sohojnamaj.util.dateUtil.today
 import com.fsit.sohojnamaj.util.dateUtil.tomorrow
-import com.fsit.sohojnamaj.util.praytimes.PrayTime
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +38,7 @@ class AutoStartReceiver : BroadcastReceiver() {
                     isha = waqtData.Isha.toISO8601Date(),
                     nextFajr = tomorrowPrayer?.Fajr.toISO8601Date()
                     )
-                    PrayTime.schedule(context,alermModel)
+                  //  PrayTime.schedule(context,alermModel)
                 }
 
 

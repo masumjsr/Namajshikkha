@@ -17,7 +17,12 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        homeScreen(
+        homeScreen {
+            navController.navigateToSetting()
+        }
+        settingScreen(
+            onBackClick=onBackClick
         )
+
     }
 }

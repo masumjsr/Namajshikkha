@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "com.fsit.sohojnamaj";
+option java_multiple_files = true;
+
+
+message PrayerPreferences {
+
+  int32 fajr_offset=1;
+  int32 sunrise_offset=2;
+  int32 dhuhr_offset=3;
+  int32 asr_offset=4;
+  int32 sunset_offset=5;
+  int32 maghrib_offset=6;
+  int32 isha_offset=7;
+}

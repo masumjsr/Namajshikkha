@@ -4,18 +4,17 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fsit.sohojnamaj.data.repository.LocalRepository
 import com.fsit.sohojnamaj.data.repository.NetworkRepository
 import com.fsit.sohojnamaj.data.repository.PrayerRepository
+import com.fsit.sohojnamaj.data.repository.PrayerSettingRepository
 import com.fsit.sohojnamaj.model.*
 import com.fsit.sohojnamaj.util.dateUtil.*
-import com.fsit.sohojnamaj.util.praytimes.PrayTime
-import com.fsit.sohojnamaj.util.sync.combine
+import com.fsit.sohojnamaj.util.praytimes.PrayerTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -25,7 +24,105 @@ class HomeViewModel @Inject constructor(
     @ApplicationContext context: Context,
     private val networkRepository: NetworkRepository,
     private val prayerRepository: PrayerRepository,
+    private val localRepository: LocalRepository,
+    private val prayerSettingRepository: PrayerSettingRepository
 ) : ViewModel(){
+
+    val userData=localRepository.userData
+
+    val currentWaqt= userData
+        .map {waqtData->
+
+            val fajrRange = PrayerRange(0,start = waqtData.fajr.toDate(),waqtData.sunrise.toDate()-1.toMilisFromMinutes())
+            val morningForbiddenRange =PrayerRange(1,start = waqtData.sunrise.toDate(),waqtData.sunrise.toDate()+15.toMilisFromMinutes())
+            val duhaRange= PrayerRange(2,morningForbiddenRange.end+1.toMilisFromMinutes(),waqtData.dhur.toDate()-6.toMilisFromMinutes())
+            val noonForbiddern= PrayerRange(3,duhaRange.end+1.toMilisFromMinutes(),waqtData.dhur.toDate()-1.toMilisFromMinutes())
+            val dhurRange = PrayerRange(4,waqtData.dhur.toDate(),waqtData.asr.toDate()-1.toMilisFromMinutes())
+            val asrRange= PrayerRange(5,waqtData.asr.toDate(),waqtData.maghrib.toDate()-16.toMilisFromMinutes())
+            val evenningForbidden = PrayerRange(6,asrRange.end,waqtData.maghrib.toDate()-1.toMilisFromMinutes())
+            val magribRange = PrayerRange(7,waqtData.maghrib.toDate(),waqtData.isha.toDate()-1.toMilisFromMinutes())
+            val isha = PrayerRange(8,waqtData.isha.toDate(),waqtData.nextFajr.toDate()-1.toMilisFromMinutes())
+            val previousIsha = PrayerRange(10,waqtData.previousIsha.toDate(),waqtData.fajr.toDate()-1.toMilisFromMinutes())
+            val nextFajrRange = PrayerRange(id=9,start=waqtData.nextFajr.toDate(),end=-1)
+            val nextMagribRange = PrayerRange(7,waqtData.nextMagrib.toDate(),-1)
+
+
+
+
+            AllPrayerRange(
+                previousIsha=previousIsha,
+                fajrRange=fajrRange,
+                morningForbiddenRange=morningForbiddenRange,
+                duhaRange=duhaRange,
+                noonForbidden =noonForbiddern,
+                dhurRange=dhurRange,
+                asrRange = asrRange,
+                eveningForbidden = evenningForbidden,
+                magribRange=magribRange,
+                ishaRange = isha,
+                nextFajrRange = nextFajrRange,
+                nextMagribRange=nextMagribRange
+            )
+
+
+            val rangeArray = arrayOf(previousIsha,fajrRange,morningForbiddenRange,duhaRange,noonForbiddern,dhurRange,asrRange,evenningForbidden,magribRange,isha,nextFajrRange)
+
+            val startRangeArray= arrayListOf(
+                previousIsha.start,
+                fajrRange.start,
+                morningForbiddenRange.start,
+                duhaRange.start,
+                noonForbiddern.start,
+                dhurRange.start,
+                asrRange.start,
+                evenningForbidden.start,
+                magribRange.start,
+                isha.start,
+                nextFajrRange.start
+            )
+            val closest= startRangeArray.findClosest(System.currentTimeMillis())
+            val nearest=startRangeArray.indexOf(closest)
+            val forbiddenRange=nearest==1||nearest==3||nearest==6
+            val forbiddenRange2=nearest==2||nearest==4||nearest==7
+            val next =if( forbiddenRange)nearest+2 else nearest+1
+
+            val isIftarOver=System.currentTimeMillis()>magribRange.start
+
+
+            val nextSahri=if(isIftarOver.not())fajrRange.start else nextFajrRange.start
+            val nextIftar =if(isIftarOver.not())magribRange.start else nextMagribRange.start
+            val timeleft =if(isIftarOver.not())nextIftar.timeLeft() else nextSahri.timeLeft()
+
+
+
+            Prayer(
+                name = prayerNameList[nearest],
+                prayer = rangeArray[nearest],
+                text= rangeArray[nearest].toTimeFormat(),
+                timeLeft = rangeArray[nearest].timeLeft(),
+                progress = ((100*( System.currentTimeMillis()- rangeArray[nearest].start)/(rangeArray[nearest].end - rangeArray[nearest].start))).toFloat()/100f,
+                next = prayerNameList[next],
+                nextText = rangeArray[next].toTimeFormat(),
+                forbiddenRange = forbiddenRange2,
+                isIfterOver = isIftarOver,
+                nextIfter = nextIftar.toTimeFormat(),
+                nextSahari = nextSahri.toTimeFormat(),
+                nextTimeLeft = timeleft,
+                forbiddenTime = arrayListOf(
+                    ForbiddenTime("নিষিদ্ধ সময়(সকাল)",morningForbiddenRange.toTimeFormat()),
+                    ForbiddenTime("নিষিদ্ধ সময় (দুপুর)",noonForbiddern.toTimeFormat()),
+                    ForbiddenTime("নিষিদ্ধ সময় (সন্ধ্যা)",evenningForbidden.toTimeFormat())
+                )
+            )
+
+
+
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = Prayer()
+
+    )
 
     private val todayPrayer =  prayerRepository.prayer(today())
     private val yesterdayPrayer =  prayerRepository.prayer(yesterday())
@@ -74,10 +171,55 @@ class HomeViewModel @Inject constructor(
     init {
         Log.i("123321", ": ")
         viewModelScope.launch {
-            while (true) {
+            /*while (true) {
                 delay(60*1000)
                 systemTime.value=System.currentTimeMillis()
-            }
+            }*/
+
+
+          prayerSettingRepository.prayerPreferenceData.collectLatest {
+
+
+              val yesterday=Calendar.getInstance()
+              yesterday.add(Calendar.DAY_OF_MONTH,-1)
+              val today =Calendar.getInstance()
+              today.timeInMillis=System.currentTimeMillis()
+              val tommorrow =Calendar.getInstance()
+              tommorrow.add(Calendar.DAY_OF_MONTH,1)
+              val offset= intArrayOf(
+                  it.offsetModel.fajr,
+                  it.offsetModel.sunrise,
+                  it.offsetModel.dhur,
+                  it.offsetModel.asr,it.offsetModel.sunset,it.offsetModel.magrib,it.offsetModel.isha)
+
+              val praytime = PrayerTimeHelper.getPrayerTimeFromPrefs( context,today, offset =offset)
+              val praytimeYesterDay = PrayerTimeHelper.getPrayerTimeFromPrefs(
+                  context,
+                  yesterday,
+                  offset
+              )
+              val praytimeTommorow = PrayerTimeHelper.getPrayerTimeFromPrefs(
+                  context,
+                  tommorrow,
+                  offset
+              )
+
+              localRepository.updateUserData(
+                  UserData(
+                      previousIsha = praytimeYesterDay.isya?:"",
+                      fajr = praytime.fajr?:"",
+                      dhur = praytime.dhuhr?:"",
+                      asr = praytime.asr?:"",
+                      maghrib = praytime.maghrib ?:"",
+                      isha = praytime.isya?:"",
+                      nextFajr = praytimeTommorow.fajr?:"",
+                      nextMagrib = praytimeTommorow.maghrib?:""
+                  )
+              )
+
+
+
+          }
 
 
         }
@@ -98,7 +240,7 @@ fun setupAlerm(context: Context) {
                    isha = waqtData.Isha.toISO8601Date(),
                    nextFajr = tomorrowPrayer.Fajr.toISO8601Date()
                )
-               PrayTime.schedule(context, alermModel)
+               //PrayTime.schedule(context, alermModel)
            }
 
 
@@ -109,7 +251,7 @@ fun setupAlerm(context: Context) {
 }
 
 
-    private val prayerNameList = arrayListOf("এশা","ফযর", "নিষিদ্ধ সময় ","সালাতুল দুহা","নিষিদ্ধ সময়","যুহর","আসর","নিষিদ্ধ সময়","মাগরিব","এশা","ফযর")
+    private val prayerNameList = arrayListOf("এশা","ফজর", "নিষিদ্ধ সময় ","সালাতুল দুহা","নিষিদ্ধ সময়","যুহর","আসর","নিষিদ্ধ সময়","মাগরিব","এশা","ফজর")
 
     val currentPrayer :StateFlow<Prayer?> = combineFlow
 
@@ -142,7 +284,6 @@ fun setupAlerm(context: Context) {
 
               val isIftarOver=System.currentTimeMillis()>it.magribRange.start
 
-              Log.i("123321", "isIfter over is : $isIftarOver because system is ${System.currentTimeMillis()} and magrib is ${it.magribRange.start}")
 
               val nextSahri=if(isIftarOver.not())it.fajrRange.start else it.nextFajrRange.start
               val nextIftar =if(isIftarOver.not())it.magribRange.start else it.nextMagribRange.start
