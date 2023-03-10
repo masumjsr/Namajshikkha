@@ -1,9 +1,9 @@
 package com.fsit.sohojnamaj.util.praytimes
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Geocoder
 import android.net.ConnectivityManager
+import android.util.Log
 import androidx.databinding.ObservableField
 import com.google.android.gms.maps.model.LatLng
 import com.fsit.sohojnamaj.constants.LocaleConstants.ASR
@@ -19,13 +19,10 @@ import com.fsit.sohojnamaj.constants.LocaleConstants.locale
 import com.fsit.sohojnamaj.data.Prefs
 import com.fsit.sohojnamaj.PrayerTime
 import com.fsit.sohojnamaj.util.LocaleProvider
-import com.fsit.sohojnamaj.util.SingleLocationProvider
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Created by Mayburger on 2/15/19.
@@ -34,31 +31,16 @@ import kotlin.coroutines.suspendCoroutine
 object PrayerTimeHelper {
 
 
-    @SuppressLint("CheckResult")
-    suspend fun getPrayerTime(ctx: Context,cal: Calendar = Calendar.getInstance(),offset:IntArray): PrayerTime {
-        var isResumed = false
-        return suspendCoroutine { suspended ->
-            SingleLocationProvider.requestSingleUpdate(ctx) { location ->
-                if (!isResumed){
-                    suspended.resume(
-                        getCurrentPrayerTimeString(
-                            ctx,
-                            LatLng(location.latitude.toDouble(), location.longitude.toDouble()),
-                            offset = offset
-                        )
-                    )
-                    isResumed = true
-                }
-            }
-        }
-    }
 
     fun getPrayerTimeFromPrefs(
         mContext: Context,
         cal: Calendar = Calendar.getInstance(),
-        offset: IntArray= intArrayOf()
+        offset: IntArray = intArrayOf(),
+        latLng: LatLng,
+        method: Int,
+        majhab: Int
     ): PrayerTime {
-        getCurrentPrayerTimeString(mContext, Prefs.userCoordinates,cal,offset)
+        getCurrentPrayerTimeString(mContext, latLng,cal,offset,method,majhab)
         return Prefs.praytime
     }
 
@@ -207,16 +189,19 @@ object PrayerTimeHelper {
         ctx: Context,
         latLng: LatLng,
         cal: Calendar = Calendar.getInstance(),
-        offset: IntArray
+        offset: IntArray,
+        method: Int,
+        majhab: Int
     ): PrayerTime {
         Prefs.userCoordinates = latLng
         var address: String? = "Cannot get location"
+
         try {
             if (isNetworkAvailable(ctx)) {
                 val gcd = Geocoder(ctx, Locale.getDefault())
                 val addresses = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1)!!
                 if (addresses.size > 0) {
-                    address = addresses[0].locality
+                    address = addresses[0].subAdminArea
                     Prefs.userCity = address
                 }
             } else {
@@ -225,12 +210,14 @@ object PrayerTimeHelper {
                 }
             }
         } catch (e: Exception) {
+            Log.i("123321", "getCurrentPrayerTimeString: expection while get lcoation name =${e.message}")
         }
 
         val prayers = PrayTimeScript()
         prayers.setTimeFormat(prayers.Time24)
-        prayers.setCalcMethod(Prefs.calculationMethod)
-        prayers.setAsrJuristic(Prefs.asrJuristic)
+        prayers.setCalcMethod(method+1)
+
+        prayers.setAsrJuristic(if(majhab==0)1 else 0)
         prayers.setAdjustHighLats(Prefs.higherLatitudes)
         val offsets = intArrayOf(
             Prefs.fajrOffset,

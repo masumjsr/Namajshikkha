@@ -16,6 +16,7 @@ import com.fsit.sohojnamaj.ui.navigation.AppState
 import com.fsit.sohojnamaj.ui.navigation.rememberAppState
 import com.fsit.sohojnamaj.ui.theme.NamajShikkhaTheme
 import com.fsit.sohojnamaj.util.praytimes.PrayerTimeHelper
+import com.fsit.sohojnamaj.util.praytimes.Praytime
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         volumeControlStream = AudioManager.STREAM_ALARM
-
+        Praytime.configureForegroundService(this)
         //  PrayTime.schedule(this)
 
 

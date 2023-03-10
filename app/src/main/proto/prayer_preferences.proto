@@ -12,4 +12,18 @@ message PrayerPreferences {
   int32 sunset_offset=5;
   int32 maghrib_offset=6;
   int32 isha_offset=7;
+  double lat=8;
+  double lng=9;
+  int32 fajr_alerm=10;
+  int32 dhuhr_alerm=11;
+  int32 asr_alerm=12;
+  int32 maghrib_alerm=13;
+  int32 isha_alerm=14;
+  int32 hijri=15;
+  int32 method=16;
+  int32 majhab=17;
+  int32 sound=18;
+  int32 vibration=19;
+  int32 darkmode=20;
+
 }

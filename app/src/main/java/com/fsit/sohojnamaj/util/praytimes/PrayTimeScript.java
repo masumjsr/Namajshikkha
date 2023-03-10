@@ -114,8 +114,8 @@ public class PrayTimeScript {
 //                                        5
 
         // Juristic Methods
-        this.setShafii(0); // Shafii (standard)
-        this.setHanafi(1); // Hanafi
+        this.setShafii(1); // Shafii (standard)
+        this.setHanafi(0); // Hanafi
 
         // Adjusting Methods for Higher Latitudes
         this.setNone(0); // No adjustment
@@ -188,7 +188,7 @@ public class PrayTimeScript {
         methodParams.put(Integer.valueOf(this.getEgypt()), Evalues);
 
         // Kemenag
-        double[] KEvalues = {20,1,0,0,18};
+        double[] KEvalues = {17.7,1,0,0,15};
         methodParams.put(Integer.valueOf(this.getKemenag()), KEvalues);
 
         // Custom

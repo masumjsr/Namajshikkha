@@ -74,10 +74,8 @@ fun PrayerRange?.timeLeft():String{
     return if(this!=null){
 
 
-        val calendar = Calendar.getInstance()
-
         var different: Long = this.end - System.currentTimeMillis()
-
+        Log.i("123321", "timeLeft: input is ${this.end.toDateFormat()} and system is ${System.currentTimeMillis().toDateFormat()}")
 
         val secondsInMilli: Long = 1000
         val minutesInMilli = secondsInMilli * 60

@@ -10,6 +10,8 @@ import com.fsit.sohojnamaj.data.repository.PrayerRepository
 import com.fsit.sohojnamaj.data.repository.PrayerSettingRepository
 import com.fsit.sohojnamaj.model.OffsetModel
 import com.fsit.sohojnamaj.model.PrayerPreferenceModel
+import com.fsit.sohojnamaj.model.SoundModel
+import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -20,29 +22,38 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(
     private val  prayerRepository: PrayerSettingRepository,
 ) : ViewModel(){
-    val offset:StateFlow<OffsetModel> = prayerRepository
+    val settings:StateFlow<PrayerPreferenceModel> = prayerRepository
         .prayerPreferenceData
         .map {
-            it.offsetModel
+            it
         }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
-            initialValue =OffsetModel()
+            initialValue = PrayerPreferenceModel(OffsetModel(), LatLng(0.0,0.0), SoundModel())
         )
     fun updateOffset(id:Int,offSet:Int){
 
-        Log.i("123321", "updateOffset: updateOffset $offset")
         viewModelScope.launch {
             prayerRepository.updateOffset(id,offSet)
         }
     }
-    init {
+    fun updateSound(id:Int,offSet:Int){
+
         viewModelScope.launch {
-            offset.collectLatest {
-                Log.i("123321", "viewmodel offset response:${it} ")
-            }
+            prayerRepository.updateSound(id,offSet)
         }
     }
+    fun updateHijri(value:Int){
+        viewModelScope.launch { prayerRepository.updatehijri(value) }
+    }
+
+    fun updateMethod(value:Int){
+        viewModelScope.launch { prayerRepository.updatemethod(value) }
+    }
+    fun updateMajhab(value:Int){
+        viewModelScope.launch { prayerRepository.updateMajhab(value) }
+    }
+
 
 }

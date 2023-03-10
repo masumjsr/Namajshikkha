@@ -15,5 +15,6 @@ message UserPreferences {
   string previous_isha=8;
   string next_fajr=9;
   string next_maghrib=10;
+  string location=11;
 
 }

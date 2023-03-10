@@ -6,8 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import com.fsit.sohojnamaj.PrayerTime
+import com.fsit.sohojnamaj.UserPreferences
 import com.fsit.sohojnamaj.data.Prefs
+import com.fsit.sohojnamaj.model.PrayerPreferenceModel
+import com.fsit.sohojnamaj.model.UserData
 import com.fsit.sohojnamaj.util.AlarmHelper
+import com.fsit.sohojnamaj.util.dateUtil.toDate
 import com.fsit.sohojnamaj.util.receiver.AdzanReceiver
 import com.fsit.sohojnamaj.util.receiver.TickReceiver
 import java.util.*
@@ -21,61 +25,66 @@ class Praytime {
                 registerReceiver(TickReceiver(), IntentFilter(Intent.ACTION_TIME_CHANGED))
             }
         }
-        fun schedule(context:Context?){
+        fun schedule(context:Context?,prayerPreferenceModel: PrayerPreferenceModel,userPreferences: UserData){
             context?.apply{
                // PraytimeWidget.update(this)
                // Khatam.schedule(this)
                // DailyReminder.schedule(this)
+                val fajr=userPreferences.fajr.toDate()
+                val dhur=userPreferences.dhur.toDate()
+                val asr=userPreferences.asr.toDate()
+                val magrib=userPreferences.maghrib.toDate()
+                val isha=userPreferences.isha.toDate()
 
-                if (Prefs.userCoordinates.latitude == 0.0 || Prefs.userCoordinates.longitude == 0.0) {
+                if (prayerPreferenceModel.latLng.latitude == 0.0 || prayerPreferenceModel.latLng.longitude == 0.0) {
                     return
                 }
 
-                val praytime = PrayerTimeHelper.getPrayerTimeFromPrefs(this)
+                val soundModel= prayerPreferenceModel.soundModel
 
 
-                if (Calendar.getInstance().before(getFajrTime(praytime))) {
+                if (System.currentTimeMillis()<fajr) {
                     configureAdzanScheduler(
-                        getFajrTime(praytime).timeInMillis,
+                        fajr,
                         AlarmHelper.mFajrRequestCode,
                         PraytimeType.Fajr,
-                        Prefs.ringFajr
+                        soundModel.fajr
                     )
                 }
 
-                if (Calendar.getInstance().before(getDhuhrTime(praytime))) {
+                if (System.currentTimeMillis()<dhur) {
                     configureAdzanScheduler(
-                        getDhuhrTime(praytime).timeInMillis,
+                        dhur,
                         AlarmHelper.mDhuhrRequestCode,
                         PraytimeType.Dhuhr,
-                        Prefs.ringDhuhr
+                        soundModel.dhur
                     )
                 }
 
-                if (Calendar.getInstance().before(getAsrTime(praytime))) {
+                if (System.currentTimeMillis()<asr) {
                     configureAdzanScheduler(
-                        getAsrTime(praytime).timeInMillis,
+                        asr,
                         AlarmHelper.mAsrRequestCode,
                         PraytimeType.Asr,
-                        Prefs.ringAsr
+                        soundModel.asr
                     )
                 }
 
-                if (Calendar.getInstance().before(getMaghribTime(praytime))) {
+                if (System.currentTimeMillis()<magrib) {
                     configureAdzanScheduler(
-                        getMaghribTime(praytime).timeInMillis,
+                        magrib,
                         AlarmHelper.mMaghribRequestCode,
                         PraytimeType.Maghrib,
-                        Prefs.ringMaghrib
+                        soundModel.magrib
                     )
                 }
 
-                if (Calendar.getInstance().before(getIsyaTime(praytime))) {
+                if (System.currentTimeMillis()<isha) {
                     configureAdzanScheduler(
-                        getIsyaTime(praytime).timeInMillis,
+                        isha,
                         AlarmHelper.mIsyaRequestCode,
                         PraytimeType.Isya,
-                        Prefs.ringIsya
+                        soundModel.isha
                     )
                 }
             }

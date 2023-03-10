@@ -1,6 +1,7 @@
 package com.fsit.sohojnamaj.model
 
 data class UserData(
+     val location:String="-",
      val previousIsha:String="-",
      val fajr: String ="-",
      val sunrise: String ="-",

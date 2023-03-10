@@ -1,5 +1,6 @@
 package com.fsit.sohojnamaj.datastore
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import com.fsit.sohojnamaj.PrayerTime
 import com.fsit.sohojnamaj.UserPreferences
@@ -24,11 +25,14 @@ class PreferencesDataSource @Inject constructor(
                 isha = it.isha,
                 previousIsha = it.previousIsha,
                 nextFajr = it.nextFajr,
-                nextMagrib = it.nextMaghrib
+                nextMagrib = it.nextMaghrib,
+                location = it.location
 
             )
         }
     suspend fun updateUserData(userData: UserData){
+
+        Log.i("123321", "updateUserData:  sunrise set at ${userData.sunrise}")
         userPreferences.updateData {
             it.copy {
                 fajr = userData.fajr?:""
@@ -40,6 +44,7 @@ class PreferencesDataSource @Inject constructor(
                 previousIsha= userData.previousIsha
                 nextFajr=userData.nextFajr
                 nextMaghrib=userData.nextMagrib
+                location = userData.location
 
             }
 

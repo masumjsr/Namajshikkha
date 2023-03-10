@@ -15,6 +15,7 @@ import androidx.work.WorkerParameters
 import com.fsit.sohojnamaj.R
 import com.fsit.sohojnamaj.constants.NotificationConstants
 import com.fsit.sohojnamaj.data.Prefs
+import com.wagyufari.dzikirqu.constants.Extra
 import io.reactivex.Single
 
 class AdzanForegroundNotification(appContext: Context, workerParams: WorkerParameters):
@@ -25,7 +26,8 @@ class AdzanForegroundNotification(appContext: Context, workerParams: WorkerParam
     val mp = MediaPlayer()
 
     override fun createWork(): Single<Result> {
-        applicationContext.createForegroundNotification("Fazor waqt salat")
+        applicationContext.createForegroundNotification("${inputData.getString(
+            Extra.EXTRA_PRAYER).toString()} waqt salat")
 
         return Single.create { emitter->
             mp.setAudioStreamType(AudioManager.STREAM_RING)
@@ -48,7 +50,7 @@ class AdzanForegroundNotification(appContext: Context, workerParams: WorkerParam
 
     private fun Context.createForegroundNotification(text: String){
         notificationManager =  getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val title = text
+        val title = "Prayer Time"
 
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O) {
             createChannel()
@@ -58,7 +60,7 @@ class AdzanForegroundNotification(appContext: Context, workerParams: WorkerParam
 
         val notification = NotificationCompat.Builder(applicationContext,mChannelId)
             .setContentText(title)
-            .setContentText("Fazr Prayer time")
+            .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setDeleteIntent(WorkManager.getInstance(applicationContext).createCancelPendingIntent(id))
