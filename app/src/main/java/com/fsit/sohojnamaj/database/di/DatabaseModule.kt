@@ -21,5 +21,6 @@ object DatabaseModule {
         context,
         AppDatabase::class.java,
         "app-database"
-    ).build()
+    ).createFromAsset("app-database.db")
+        .build()
 }

@@ -17,11 +17,19 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        homeScreen {
-            navController.navigateToSetting()
-        }
+        homeScreen (
+            onSettingClick = { navController.navigateToSetting() },
+            onQuranClick = { navController.navigateToQuran()}
+        )
         settingScreen(
             onBackClick=onBackClick
+        )
+        quranScreen(
+            onBackClick = onBackClick,
+            onSuraClick = {id,title->navController .navigateToAyat(id,title)}
+        )
+        ayatScreen(
+            onBackClick = onBackClick
         )
 
     }

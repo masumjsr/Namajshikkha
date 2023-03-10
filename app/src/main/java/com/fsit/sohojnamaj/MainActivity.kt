@@ -11,14 +11,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.fsit.sohojnamaj.database.dao.AyatArDao
+import com.fsit.sohojnamaj.database.dao.AyatBnDao
+import com.fsit.sohojnamaj.database.dao.SuraDao
+import com.fsit.sohojnamaj.model.AyatAr
+import com.fsit.sohojnamaj.model.AyatBn
+import com.fsit.sohojnamaj.model.Sura
 import com.fsit.sohojnamaj.ui.navigation.AppNavHost
 import com.fsit.sohojnamaj.ui.navigation.AppState
 import com.fsit.sohojnamaj.ui.navigation.rememberAppState
 import com.fsit.sohojnamaj.ui.theme.NamajShikkhaTheme
+import com.fsit.sohojnamaj.util.loadJSONFromAssets
 import com.fsit.sohojnamaj.util.praytimes.PrayerTimeHelper
 import com.fsit.sohojnamaj.util.praytimes.Praytime
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import org.json.JSONArray
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -27,6 +40,7 @@ class MainActivity : ComponentActivity() {
         volumeControlStream = AudioManager.STREAM_ALARM
         Praytime.configureForegroundService(this)
         //  PrayTime.schedule(this)
+
 
 
 

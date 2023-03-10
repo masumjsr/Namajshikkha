@@ -56,7 +56,8 @@ import java.util.*
 @Composable
 fun HomeScreenRoute(
     viewModel: HomeViewModel = hiltViewModel(),
-    onSettingClick: () -> Unit
+    onSettingClick: () -> Unit,
+    onQuranClick: () -> Unit
 ) {
     val currentWaqt by viewModel.currentWaqt.collectAsStateWithLifecycle()
     val currentLocation by viewModel.locationData.collectAsStateWithLifecycle()
@@ -65,6 +66,7 @@ fun HomeScreenRoute(
  HomeScreen(
      current =currentWaqt,
      onSettingClick =onSettingClick,
+     onQuranClick=onQuranClick,
      currentLocation =currentLocation,
      onLocationFound = { viewModel.updateLocation(it) }
  )
@@ -72,7 +74,12 @@ fun HomeScreenRoute(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun HomeScreen(current: Prayer?, onSettingClick: () -> Unit, currentLocation: String?,onLocationFound:(LatLng)->Unit) {
+fun HomeScreen(
+    current: Prayer?,
+    onSettingClick: () -> Unit,
+    onQuranClick: () -> Unit,
+    currentLocation: String?,
+    onLocationFound:(LatLng)->Unit) {
     Scaffold(
         topBar = {
             TopAppBar (
@@ -165,7 +172,7 @@ fun HomeScreen(current: Prayer?, onSettingClick: () -> Unit, currentLocation: St
 
                 NextWaqt(current)
                 Sahari(current)
-                ItemList()
+                ItemList(onQuranClick=onQuranClick)
                 Forbidden(current)
             }
 
@@ -281,34 +288,35 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
 
 
 @Composable
-fun ItemList() {
+fun ItemList(onQuranClick: () -> Unit) {
         Row(
         modifier =Modifier.fillMaxWidth(),
         ){
-         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
-         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
-         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+         ItemCard(icon=R.drawable.quran,title="কুরআন"){onQuranClick()}
+         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
     }
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
     }
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী")
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
     }
 }
 
 @Composable
-fun RowScope.ItemCard(icon: Int, title: String) {
+fun RowScope.ItemCard(icon: Int, title: String,onItemClick:()->Unit) {
     Column(
         modifier = Modifier
+            .clickable { onItemClick() }
             .padding(top = 16.dp)
             .weight(0.333f),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -605,6 +613,7 @@ fun PreviewHomeScreen() {
     HomeScreen(
         current = Prayer(name = "মাগরিব", PrayerRange(0,1234,1234),text="7:10 PM - 5:50 AM"),
         onSettingClick = {},
+        onQuranClick = {},
         currentLocation = "",
         onLocationFound = {}
 
