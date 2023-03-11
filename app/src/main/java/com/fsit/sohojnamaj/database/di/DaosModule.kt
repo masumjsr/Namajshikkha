@@ -17,14 +17,6 @@ object DaosModule {
     ): SuraDao = database.getSuraDao()
 
     @Provides
-    fun provideAyatArDao(
-        database:AppDatabase
-    ): AyatArDao = database.getAyatArDao()
-    @Provides
-    fun provideAyatBnDao(
-        database:AppDatabase
-    ): AyatBnDao = database.getAyatBnDao()
-    @Provides
     fun provideSuraDetailsDao(
         database:AppDatabase
     ): SuraDetailsDao = database.getSuraDetailsDao()

@@ -4,12 +4,11 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,19 +21,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.fsit.sohojnamaj.model.Ayat
-import com.fsit.sohojnamaj.model.sampleAyat
-import com.fsit.sohojnamaj.ui.viewModel.AyatViewModel
+import com.fsit.sohojnamaj.model.SuraDetails
+import com.fsit.sohojnamaj.model.sampleSuraDetails
+import com.fsit.sohojnamaj.ui.viewModel.SuraDetailsViewModel
 
 @Composable
 fun AyatScreenRoute(
-    viewModel: AyatViewModel= hiltViewModel(),
+    viewModel: SuraDetailsViewModel= hiltViewModel(),
     onBackClick: () -> Unit) {
-    val ayat by viewModel.ayatList.collectAsStateWithLifecycle()
+    val suraDetails by viewModel.suraDetails.collectAsStateWithLifecycle()
     val title:String? = viewModel.title
-    AyatScreen(
+    SuraDetailsScreen(
         title =title,
-        ayat=ayat,
+        suraDetails=suraDetails,
         onBackClick=onBackClick
     )
 
@@ -42,7 +41,7 @@ fun AyatScreenRoute(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AyatScreen(onBackClick: () -> Unit, ayat: List<Ayat>, title: String?) {
+fun SuraDetailsScreen(onBackClick: () -> Unit, suraDetails: List<SuraDetails>, title: String?) {
     Scaffold (
         topBar = {
             TopAppBar (
@@ -57,7 +56,7 @@ fun AyatScreen(onBackClick: () -> Unit, ayat: List<Ayat>, title: String?) {
     ){
         Column(modifier = Modifier.padding(it)) {
             LazyColumn(){
-                itemsIndexed(ayat){index, ayat ->
+                items(suraDetails){ sura ->
                     Card(
                         onClick = {},
                         modifier = Modifier
@@ -85,7 +84,7 @@ fun AyatScreen(onBackClick: () -> Unit, ayat: List<Ayat>, title: String?) {
                                 .padding(
                                     start = 5.dp, end = 5.dp, top = 1.dp, bottom = 1.dp
                                 ),
-                            text = "${index + 1}",
+                            text = "${sura.ayatNumber}",
                             fontSize = 14.sp,
                             textAlign = TextAlign.Center,
                             color = Color.White
@@ -100,16 +99,26 @@ fun AyatScreen(onBackClick: () -> Unit, ayat: List<Ayat>, title: String?) {
                                         modifier= Modifier
                                             .fillMaxWidth()
                                             .padding(16.dp),
-                                        text = ayat.ar.ayat,
+                                        text = sura.arabic,
                                         textAlign = TextAlign.End,
                                         fontSize = 24.sp
                                     )
+
+                        Divider( color = Color(229, 229, 229))
+
+
+                        Text(
+                            modifier=Modifier.padding(16.dp),
+                            text = sura.ayat
+                        )
+
+
                         Divider( color = Color(229, 229, 229))
 
 
                                     Text(
                                         modifier=Modifier.padding(16.dp),
-                                        text = ayat.bn.text
+                                        text = sura.text
                                     )
 
 
@@ -127,5 +136,5 @@ fun AyatScreen(onBackClick: () -> Unit, ayat: List<Ayat>, title: String?) {
 @Preview
 @Composable
 fun AyatScreenPreview() {
-    AyatScreen(onBackClick={}, sampleAyat, "title")
+    SuraDetailsScreen(onBackClick={}, sampleSuraDetails, "title")
 }

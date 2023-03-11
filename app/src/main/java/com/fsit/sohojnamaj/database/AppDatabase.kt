@@ -8,8 +8,6 @@ import com.fsit.sohojnamaj.model.*
 @Database(
     entities = [
         Sura::class,
-    AyatAr::class,
-    AyatBn::class,
     SuraDetails::class
 
     ],
@@ -18,8 +16,6 @@ import com.fsit.sohojnamaj.model.*
 )
 abstract class AppDatabase : RoomDatabase(){
     abstract fun getSuraDao(): SuraDao
-    abstract fun getAyatArDao():AyatArDao
-    abstract fun getAyatBnDao():AyatBnDao
     abstract fun getSuraDetailsDao():SuraDetailsDao
 
 }

@@ -65,7 +65,10 @@ fun QuranScreen(onBackClick: () -> Unit, sura: List<Sura>, onSuraClick: (Int,Str
                         border = BorderStroke(1.dp, color = Color(54, 168, 160))
 
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     modifier = Modifier
@@ -90,7 +93,24 @@ fun QuranScreen(onBackClick: () -> Unit, sura: List<Sura>, onSuraClick: (Int,Str
                                         text = sura.sura_name,
                                         modifier = Modifier.padding(bottom = 5.dp)
                                     )
-                                    Text(text = "আয়াত সংখ্যা ${translateNumbersToBangla(sura.total_ayat.toString())}", style = MaterialTheme.typography.bodySmall)
+                                    Text(text = sura.sura_mean, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+
+
+                                Column (
+
+                                    modifier = Modifier.padding(start = 8.dp, end = 5.dp),
+                                        ){
+                                    Text(
+                                        text = sura.sura_discended,
+                                        modifier = Modifier.padding(bottom = 5.dp).fillMaxWidth(),
+                                         style = MaterialTheme.typography.bodySmall,
+                                        textAlign = TextAlign.End
+                                    )
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        text = sura.total_ayat, style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.End)
                                 }
                             }
                         }
@@ -99,7 +119,7 @@ fun QuranScreen(onBackClick: () -> Unit, sura: List<Sura>, onSuraClick: (Int,Str
             }
         }
         
-    }
+
 
 }
 

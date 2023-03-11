@@ -14,9 +14,9 @@ interface SuraDetailsDao {
 
     @Transaction
     @Query(
-        value ="Select * from sura_details "
+        value ="Select * from sura_details where sura=:sura"
     )
-    fun getSuraDetails(): Flow<List<SuraDetails>>
+    fun getSuraDetails(sura:Int): Flow<List<SuraDetails>>
     @Upsert
     suspend fun updateSurah(sura: List<SuraDetails>)
 }
