@@ -6,18 +6,17 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import com.fsit.sohojnamaj.model.PrayerTime
 import com.fsit.sohojnamaj.model.Sura
+import com.fsit.sohojnamaj.model.SuraDetails
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface SuraDao {
+interface SuraDetailsDao {
 
     @Transaction
     @Query(
-        value ="Select * from sura "
+        value ="Select * from sura_details "
     )
-    fun getSura(): Flow<List<Sura>>
+    fun getSuraDetails(): Flow<List<SuraDetails>>
     @Upsert
-    suspend fun updateSurah(sura: List<Sura>)
-    @Upsert
-    suspend fun updateSurah(sura: Sura)
+    suspend fun updateSurah(sura: List<SuraDetails>)
 }

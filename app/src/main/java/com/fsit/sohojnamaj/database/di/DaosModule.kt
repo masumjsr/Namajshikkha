@@ -1,10 +1,7 @@
 package com.fsit.sohojnamaj.database.di
 
 import com.fsit.sohojnamaj.database.AppDatabase
-import com.fsit.sohojnamaj.database.dao.AyatArDao
-import com.fsit.sohojnamaj.database.dao.AyatBnDao
-import com.fsit.sohojnamaj.database.dao.PrayerDao
-import com.fsit.sohojnamaj.database.dao.SuraDao
+import com.fsit.sohojnamaj.database.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +24,8 @@ object DaosModule {
     fun provideAyatBnDao(
         database:AppDatabase
     ): AyatBnDao = database.getAyatBnDao()
+    @Provides
+    fun provideSuraDetailsDao(
+        database:AppDatabase
+    ): SuraDetailsDao = database.getSuraDetailsDao()
 }

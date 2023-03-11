@@ -8,19 +8,12 @@ data class Sura(
     @PrimaryKey(autoGenerate = false)
     val sura_no:Int,
     val sura_name:String,
-    val para:Int,
-    val total_ayat:Int,
-    val eng_name:String,
+    val sura_mean:String,
+    val total_ayat:String,
+    val sura_discended:String,
+    val audioFile:String
 )
 
 val sampleSura= arrayListOf<Sura>(
-    Sura(0,"আল ফাতিহা",0,7,""),
-    Sura(0,"আল বাকারা",0,286,""),
-    Sura(0,"আল ইমরান",0,260,""),
-    Sura(0,"আল ফাতিহা",0,7,""),
-    Sura(0,"আল ফাতিহা",0,7,""),
-    Sura(0,"আল ফাতিহা",0,7,""),
-    Sura(0,"আল ফাতিহা",0,7,""),
-    Sura(0,"আল ফাতিহা",0,7,""),
-    Sura(0,"আল ফাতিহা",0,7,""),
+
 )
