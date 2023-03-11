@@ -200,6 +200,7 @@ object PrayerTimeHelper {
             if (isNetworkAvailable(ctx)) {
                 val gcd = Geocoder(ctx, Locale.getDefault())
                 val addresses = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1)!!
+                Log.i("123321", "getCurrentPrayerTimeString: $addresses")
                 if (addresses.size > 0) {
                     address = addresses[0].subAdminArea
                     Prefs.userCity = address
