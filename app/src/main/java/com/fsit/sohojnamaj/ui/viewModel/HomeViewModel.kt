@@ -46,8 +46,10 @@ class HomeViewModel @Inject constructor(
     val currentWaqt= userData
         .map {waqtData->
 
-            Log.i("123321", "37:$waqtData ")
-                if(waqtData.location.isNotEmpty()){
+            val waqtDate=Calendar.getInstance();waqtDate.timeInMillis=waqtData.fajr.toDate()
+            val todayDate=Calendar.getInstance()
+
+                if(waqtData.location.isNotEmpty()&&waqtDate.get(Calendar.DAY_OF_MONTH)==todayDate.get(Calendar.DAY_OF_MONTH)){
 
                     val fajrRange = PrayerRange(0,start = waqtData.fajr.toDate(),waqtData.sunrise.toDate()-1.toMilisFromMinutes())
                     val morningForbiddenRange =PrayerRange(1,start = waqtData.sunrise.toDate(),waqtData.sunrise.toDate()+15.toMilisFromMinutes())
@@ -81,7 +83,21 @@ class HomeViewModel @Inject constructor(
                     )
 
 
-                    val rangeArray = arrayOf(previousIsha,fajrRange,morningForbiddenRange,duhaRange,noonForbiddern,dhurRange,asrRange,evenningForbidden,magribRange,isha,nextFajrRange)
+                    val rangeArray = arrayOf(
+                        previousIsha,
+                        fajrRange,
+                        morningForbiddenRange,
+                        duhaRange,
+                        noonForbiddern,
+                        dhurRange,
+                        asrRange,
+                        evenningForbidden,
+                        magribRange,
+                        isha,
+                        nextFajrRange,
+                        nextMagribRange
+                    )
+
 
                     val startRangeArray= arrayListOf(
                         previousIsha.start,
@@ -94,10 +110,17 @@ class HomeViewModel @Inject constructor(
                         evenningForbidden.start,
                         magribRange.start,
                         isha.start,
-                        nextFajrRange.start
+                        nextFajrRange.start,
+                        nextMagribRange.start
                     )
+
+
+
                     val closest= startRangeArray.findClosest(System.currentTimeMillis())
+
+
                     val nearest=startRangeArray.indexOf(closest)
+
                     val forbiddenRange=nearest==1||nearest==3||nearest==6
                     val forbiddenRange2=nearest==2||nearest==4||nearest==7
                     val next =if( forbiddenRange)nearest+2 else nearest+1
@@ -108,6 +131,7 @@ class HomeViewModel @Inject constructor(
                     val nextSahri=if(isIftarOver.not())fajrRange.start else nextFajrRange.start
                     val nextIftar =if(isIftarOver.not())magribRange.start else nextMagribRange.start
                     val timeleft =if(isIftarOver.not())nextIftar.timeLeft() else nextSahri.timeLeft()
+
 
 
 
@@ -161,7 +185,6 @@ class HomeViewModel @Inject constructor(
 
 
            if(it.latLng!= LatLng(0.0,0.0)){
-               Log.i("123321", "148:${it.method} ")
                val yesterday=Calendar.getInstance()
                yesterday.add(Calendar.DAY_OF_MONTH,-1)
                val today =Calendar.getInstance()

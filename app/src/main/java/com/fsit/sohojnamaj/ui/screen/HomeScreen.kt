@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fsit.sohojnamaj.R
 import com.fsit.sohojnamaj.model.Prayer
 import com.fsit.sohojnamaj.model.PrayerRange
+import com.fsit.sohojnamaj.ui.theme.kalPurush
 import com.fsit.sohojnamaj.ui.util.PulsatingCircles
 import com.fsit.sohojnamaj.ui.util.ShowAlertDialog
 import com.fsit.sohojnamaj.ui.viewModel.HomeViewModel
@@ -57,7 +58,8 @@ import java.util.*
 fun HomeScreenRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     onSettingClick: () -> Unit,
-    onQuranClick: () -> Unit
+    onQuranClick: () -> Unit,
+    onSubMenuClick: (Int) -> Unit
 ) {
     val currentWaqt by viewModel.currentWaqt.collectAsStateWithLifecycle()
     val currentLocation by viewModel.locationData.collectAsStateWithLifecycle()
@@ -67,6 +69,7 @@ fun HomeScreenRoute(
      current =currentWaqt,
      onSettingClick =onSettingClick,
      onQuranClick=onQuranClick,
+     onSubMenuClick = onSubMenuClick,
      currentLocation =currentLocation,
      onLocationFound = { viewModel.updateLocation(it) }
  )
@@ -78,6 +81,7 @@ fun HomeScreen(
     current: Prayer?,
     onSettingClick: () -> Unit,
     onQuranClick: () -> Unit,
+    onSubMenuClick: (Int) -> Unit,
     currentLocation: String?,
     onLocationFound:(LatLng)->Unit) {
     Scaffold(
@@ -85,7 +89,8 @@ fun HomeScreen(
             TopAppBar (
                 title = {
                     Text(
-                        text = "নামাজের সময়"
+                        text = "নামাজের সময়",
+                        fontFamily = kalPurush
                     )
                         },
                 actions = {
@@ -110,7 +115,6 @@ fun HomeScreen(
         var latLng by remember { mutableStateOf("")}
         currentLocation?.let {
             if(it.isNotEmpty()) {
-                Log.i("123321", "HomeScreen: $it")
                 buttonText = it
             }
            isShowDialog=(it== latLng)
@@ -172,7 +176,7 @@ fun HomeScreen(
 
                 NextWaqt(current)
                 Sahari(current)
-                ItemList(onQuranClick=onQuranClick)
+                ItemList(onQuranClick=onQuranClick,onSubMenuClick=onSubMenuClick)
                 Forbidden(current)
             }
 
@@ -232,7 +236,6 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
                         val lon = location.longitude
 
 
-                        Log.i("123321", "HandleLocation: 209:$lat")
                     }
 
                 }
@@ -288,13 +291,13 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
 
 
 @Composable
-fun ItemList(onQuranClick: () -> Unit) {
+fun ItemList(onQuranClick: () -> Unit,onSubMenuClick: (Int) -> Unit) {
         Row(
         modifier =Modifier.fillMaxWidth(),
         ){
          ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
          ItemCard(icon=R.drawable.quran,title="কুরআন"){onQuranClick()}
-         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+         ItemCard(icon=R.drawable.wudu,title="গোসল ও ওযু"){onSubMenuClick.invoke(1)}
     }
     Row(
         modifier =Modifier.fillMaxWidth(),
@@ -326,8 +329,9 @@ fun RowScope.ItemCard(icon: Int, title: String,onItemClick:()->Unit) {
             painter = painterResource(id = icon), contentDescription = "icon")
         Text(
             modifier = Modifier.padding(top= 8.dp),
-            text=title, style = MaterialTheme.typography.bodySmall,
-            maxLines = 1
+            text=title, style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            fontFamily = kalPurush
         )
 
     }
@@ -353,7 +357,8 @@ private fun Forbidden(current: Prayer?) {
                     .padding(top = 12.dp),
                 text = "আজকের সম্ভাব্য নিষিদ্ধ সময়সমূহ",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = kalPurush
             )
             Divider(
                 modifier = Modifier
@@ -372,11 +377,13 @@ private fun Forbidden(current: Prayer?) {
                         ) {
                         Text(
                             text = it.name,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontFamily = kalPurush
                         )
                         Text(
                             text = it.time,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
+                            fontFamily = kalPurush
                         )
                     }
 
@@ -405,7 +412,8 @@ private fun Sahari(current: Prayer?) {
                     .fillMaxWidth(),
                 text = "আগামীকালের সময়সুচী",
                 style = MaterialTheme.typography.titleSmall,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                fontFamily = kalPurush
             )
         }
         Row(
@@ -420,14 +428,15 @@ private fun Sahari(current: Prayer?) {
                 ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "সাহারী শেষ", style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                        text = "সাহারী শেষ", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
 
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp),
                         text = current?.nextSahari ?: "-",
-                        style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center
+                        style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                        fontFamily = kalPurush
                     )
 
                 }
@@ -437,12 +446,14 @@ private fun Sahari(current: Prayer?) {
 
                Text(
                    modifier = Modifier.fillMaxWidth(),
-                   text = "ইফতার", style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+                   text = "ইফতার", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                   fontFamily = kalPurush)
                  Text(
                      modifier = Modifier
                          .fillMaxWidth()
                          .padding(8.dp),
-                     text = current?.nextIfter ?: "-", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+                     text = current?.nextIfter ?: "-", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                     fontFamily = kalPurush)
 
 
             }
@@ -452,8 +463,9 @@ private fun Sahari(current: Prayer?) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                 text = "পরবর্তী ${if (current?.isIfterOver == true) "সাহারি" else "ইফতার"}",
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                    fontFamily = kalPurush
             )
 
                 Text(
@@ -461,7 +473,8 @@ private fun Sahari(current: Prayer?) {
                         .fillMaxWidth()
                         .padding(8.dp),
                     text = current?.nextTimeLeft ?: "-",
-                    style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center
+                    style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                    fontFamily = kalPurush
                 )
 
             }
@@ -485,18 +498,21 @@ private fun NextWaqt(current: Prayer?) {
         ) {
             Text(
                 text = "পরবর্তী নামাজ",
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = kalPurush
             )
             Row() {
                 Text(
                     modifier = Modifier,
                     text = current?.next ?: "-",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = kalPurush
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = current?.nextText ?: "-",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = kalPurush
                 )
             }
 
@@ -525,7 +541,8 @@ private fun CurrentWaqt(current: Prayer?) {
         ) {
             Text(
                 text = if (current?.forbiddenRange == true) "এখন চলছে" else "বর্তমান ওয়াক্ত",
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                fontFamily = kalPurush
             )
             Row(
                 modifier = Modifier
@@ -538,19 +555,22 @@ private fun CurrentWaqt(current: Prayer?) {
                     modifier = Modifier
                         .padding(start = 10.dp),
                     text = current?.name ?: "-",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = kalPurush
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     text = current?.text ?: "-",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = kalPurush
                 )
             }
 
 
             Text(
                 text = "সময় বাকিঃ ${current?.timeLeft}",
-                style = MaterialTheme.typography.titleSmall
+                style = MaterialTheme.typography.titleSmall,
+                fontFamily = kalPurush
             )
 
 
@@ -579,29 +599,34 @@ private fun DateSection(currentLocation: String,onButtonClick:()->Unit) {
         Column() {
             Text(
                 text = calendar.longDateString,
-                fontSize = 18.sp
+                fontSize = 18.sp,
+                fontFamily = kalPurush
             )
             Row() {
 
 
                 Text(
                     text = englishCalendar.longDateString,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = kalPurush
                 )
                 Text(
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                            text = "|"
+                    style = MaterialTheme.typography.bodyMedium,
+                            text = "|",
+                    fontFamily = kalPurush
                 )
                 Text(text = Bongabdo().now(locale = Locale("bn")),
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodyMedium,
+                    fontFamily = kalPurush
                 )
 
             }
         }
         OutlinedButton(onClick = { onButtonClick.invoke()}) {
             Icon(imageVector = Icons.Default.LocationOn, contentDescription = "Location On")
-            Text(text = currentLocation.ifEmpty { "Enable" })
+            Text(text = currentLocation.ifEmpty { "Enable" },
+                fontFamily = kalPurush)
         }
     }
 }
@@ -615,7 +640,8 @@ fun PreviewHomeScreen() {
         onSettingClick = {},
         onQuranClick = {},
         currentLocation = "",
-        onLocationFound = {}
+        onLocationFound = {},
+        onSubMenuClick = {}
 
     )
 

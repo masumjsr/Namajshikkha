@@ -20,4 +20,18 @@ object DaosModule {
     fun provideSuraDetailsDao(
         database:AppDatabase
     ): SuraDetailsDao = database.getSuraDetailsDao()
+    @Provides
+    fun provideSubCategoryDao(
+        database:AppDatabase
+    ): SubCategoryDao = database.getSubCategoryDao()
+
+    @Provides
+    fun provideTypeOneDao(
+        database:AppDatabase
+    ): TypeOneItemDao = database.getTypeOneDao()
+
+    @Provides
+    fun provideTypeTwoDao(
+        database:AppDatabase
+    ): TypeTwoItemDao = database.getTypeTwoDao()
 }

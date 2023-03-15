@@ -17,9 +17,19 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
+        subCategoryScreen (
+            onBackClick=onBackClick,
+            onTypeOneClick = {
+                navController.navigateToTypeOne(it)
+                             },
+            onTypeTwoClick = {
+                navController.navigateToTypeTwo(it)
+            }
+        )
         homeScreen (
             onSettingClick = { navController.navigateToSetting() },
-            onQuranClick = { navController.navigateToQuran()}
+            onQuranClick = { navController.navigateToQuran()},
+            onSubMenuClick = { navController.navigateToSubCategory(it) }
         )
         settingScreen(
             onBackClick=onBackClick
@@ -30,6 +40,12 @@ fun AppNavHost(
         )
         ayatScreen(
             onBackClick = onBackClick
+        )
+        typeOneScreen(
+            onBackClick=onBackClick
+        )
+        typeTwoScreen(
+            onBackClick=onBackClick
         )
 
     }

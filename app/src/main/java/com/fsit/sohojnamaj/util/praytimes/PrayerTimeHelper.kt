@@ -202,8 +202,8 @@ object PrayerTimeHelper {
                 val addresses = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1)!!
                 Log.i("123321", "getCurrentPrayerTimeString: $addresses")
                 if (addresses.size > 0) {
-                    address = addresses[0].subAdminArea
-                    Prefs.userCity = address
+                    address = if(addresses[0].thoroughfare!=null)addresses[0].thoroughfare else "অজানা"
+                    Prefs.userCity = address?:"অজানা"
                 }
             } else {
                 if (Prefs.userCity != "") {

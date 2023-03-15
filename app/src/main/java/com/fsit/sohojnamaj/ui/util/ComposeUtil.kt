@@ -32,6 +32,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.fsit.sohojnamaj.ui.theme.NamajShikkhaTheme
+import com.fsit.sohojnamaj.ui.theme.kalPurush
 
 @Composable
 fun PulsatingCircles() {
@@ -134,7 +135,9 @@ fun ShowAlertDialog(
         },
         text = {
             Column() {
-                Text(text)
+                Text(text,
+                    fontFamily = kalPurush
+                )
             }
         },
         confirmButton = {
@@ -143,7 +146,8 @@ fun ShowAlertDialog(
                     .clickable {
                         onAllowClick.invoke()
                     },
-                text = positiveButton)
+                text = positiveButton,
+                fontFamily = kalPurush)
         },
 
         dismissButton = {
@@ -152,7 +156,8 @@ fun ShowAlertDialog(
                     .clickable {
                         onDismiss.invoke()
                     },
-                text=negativeButton)
+                text=negativeButton,
+                fontFamily = kalPurush)
         }
     )
 }

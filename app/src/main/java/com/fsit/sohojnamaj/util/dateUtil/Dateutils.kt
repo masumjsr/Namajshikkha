@@ -51,8 +51,8 @@ fun String?.toDate(): Long {
 }
 
 fun List<Long?>.findClosest(input: Long) = fold(null) { acc: Long?, num ->
-    val closest = if (num!!<= input && (acc == null || num!! > acc)) num else acc
-    if (closest == input)
+    val closest = if (num!!<= input && (acc == null || num > acc)) num else acc
+   if (closest == input)
         return@findClosest closest
     else return@fold closest
 }
@@ -75,7 +75,6 @@ fun PrayerRange?.timeLeft():String{
 
 
         var different: Long = this.end - System.currentTimeMillis()
-        Log.i("123321", "timeLeft: input is ${this.end.toDateFormat()} and system is ${System.currentTimeMillis().toDateFormat()}")
 
         val secondsInMilli: Long = 1000
         val minutesInMilli = secondsInMilli * 60
