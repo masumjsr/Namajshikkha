@@ -1,11 +1,12 @@
 package com.fsit.sohojnamaj.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fsit.sohojnamaj.model.dua.TypeOneItem
-import com.fsit.sohojnamaj.model.dua.sampleSubCategory
 import com.fsit.sohojnamaj.model.dua.sampleTypeOne
 import com.fsit.sohojnamaj.ui.theme.kalPurush
 import com.fsit.sohojnamaj.ui.viewModel.TypeOneViewModel
@@ -29,15 +29,25 @@ fun TypeOneScreenRoute(
 )
 {
     val typeOneItem by viewModel.typeOneList.collectAsStateWithLifecycle()
-    Log.i("123321", "TypeOneScreenRoute:id=${viewModel.id} data is  $typeOneItem ")
-    TypeOneScreen(typeOneItem =typeOneItem)
+    val title=viewModel.title
+    TypeOneScreen(title=title,typeOneItem =typeOneItem,onBackClick=onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TypeOneScreen(typeOneItem: List<TypeOneItem>) {
+fun TypeOneScreen(typeOneItem: List<TypeOneItem>, title: String, onBackClick: () -> Unit) {
         Scaffold (
-            topBar = { TopAppBar(title = {Text("Title type one")}) }
+            topBar = { TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = {onBackClick.invoke() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                },
+                title = {Text(title)})
+            }
                 ){
 
             LazyColumn(modifier = Modifier.padding(it) ){
@@ -64,7 +74,7 @@ fun TypeOneScreen(typeOneItem: List<TypeOneItem>) {
                                modifier=Modifier.padding(16.dp),
                                text = it1,
                                fontFamily = kalPurush,
-                               style = MaterialTheme.typography.titleMedium
+                               style = MaterialTheme.typography.bodyLarge
                            )
                        }
 
@@ -78,5 +88,5 @@ fun TypeOneScreen(typeOneItem: List<TypeOneItem>) {
 @Preview
 @Composable
 fun PreviewTypeOneScreen() {
-    TypeOneScreen(sampleTypeOne)
+    TypeOneScreen(sampleTypeOne, "title", {})
 }

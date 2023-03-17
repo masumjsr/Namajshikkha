@@ -19,11 +19,11 @@ fun AppNavHost(
     ) {
         subCategoryScreen (
             onBackClick=onBackClick,
-            onTypeOneClick = {
-                navController.navigateToTypeOne(it)
+            onTypeOneClick = {id,title->
+                navController.navigateToTypeOne(id,title)
                              },
-            onTypeTwoClick = {
-                navController.navigateToTypeTwo(it)
+            onTypeTwoClick = {id,title->
+                navController.navigateToTypeTwo(id,title)
             }
         )
         homeScreen (

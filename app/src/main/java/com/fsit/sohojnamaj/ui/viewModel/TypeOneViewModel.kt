@@ -7,6 +7,7 @@ import com.fsit.sohojnamaj.data.repository.SubCategoryRepository
 import com.fsit.sohojnamaj.data.repository.SuraRepository
 import com.fsit.sohojnamaj.data.repository.TypeOneRepository
 import com.fsit.sohojnamaj.ui.navigation.idArg
+import com.fsit.sohojnamaj.ui.navigation.titleArg
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -18,6 +19,8 @@ class TypeOneViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel(){
     val id= savedStateHandle.get<Int>(idArg)?:-1
+    val title= savedStateHandle.get<String>(titleArg)?:""
+
     val typeOneList=typeOneRepository.getTypeOne(id)
         .stateIn(
             scope =viewModelScope,

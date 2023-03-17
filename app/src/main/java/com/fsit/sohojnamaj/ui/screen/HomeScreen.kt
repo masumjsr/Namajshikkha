@@ -302,16 +302,16 @@ fun ItemList(onQuranClick: () -> Unit,onSubMenuClick: (Int) -> Unit) {
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+        ItemCard(icon=R.drawable.muslim,title="পাঁচ কালেমা সমূহ"){onSubMenuClick.invoke(2)}
+        ItemCard(icon=R.drawable.salat2,title="নামাজের দোয়া"){onSubMenuClick.invoke(3)}
+        ItemCard(icon=R.drawable.shalat,title="নামাজের নিয়ত"){onSubMenuClick.invoke(4)}
     }
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
-        ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+        ItemCard(icon=R.drawable.mosque,title="জুম্মার নামাজ"){onSubMenuClick.invoke(5)}
+        ItemCard(icon=R.drawable.iftar,title="রোযা ও তারাবী"){onSubMenuClick.invoke(6)}
+        ItemCard(icon=R.drawable.mosque2,title="দুই ইদ"){onSubMenuClick.invoke(7)}
     }
 }
 

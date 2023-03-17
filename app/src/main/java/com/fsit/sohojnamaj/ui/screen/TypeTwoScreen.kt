@@ -1,14 +1,14 @@
 package com.fsit.sohojnamaj.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fsit.sohojnamaj.model.dua.TypeTwoItem
-import com.fsit.sohojnamaj.model.dua.sampleSubCategory
 import com.fsit.sohojnamaj.model.dua.sampleTypeTwo
 import com.fsit.sohojnamaj.ui.theme.kalPurush
 import com.fsit.sohojnamaj.ui.viewModel.TypeTwoViewModel
@@ -32,15 +31,26 @@ fun TypeTwoScreenRoute(
 )
 {
     val typeTwoItem by viewModel.typeTwoList.collectAsStateWithLifecycle()
-    Log.i("123321", "TypeTwoScreenRoute:id=${viewModel.id} data is  $typeTwoItem ")
-    TypeTwoScreen(typeTwoItem =typeTwoItem)
+    val title = viewModel.title
+    TypeTwoScreen(title=title,typeTwoItem =typeTwoItem,onBackClick=onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TypeTwoScreen(typeTwoItem: List<TypeTwoItem>) {
+fun TypeTwoScreen(typeTwoItem: List<TypeTwoItem>, title: String, onBackClick: () -> Unit) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Title type Two") }) }
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = {onBackClick.invoke() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                },
+                title = { Text(title) }
+            ) }
     ) {
 
         LazyColumn(modifier = Modifier.padding(it)) {
@@ -50,6 +60,17 @@ fun TypeTwoScreen(typeTwoItem: List<TypeTwoItem>) {
                         .fillMaxWidth()
                         .padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
                 ) {
+                    if(it.other?.isNotEmpty()==true){
+                        Text(
+                            text = it.other,
+                            fontFamily = kalPurush,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+
                     Text(
                         text = "আরবি উচ্চারণঃ",
                         fontFamily = kalPurush,
@@ -164,7 +185,7 @@ fun TypeTwoScreen(typeTwoItem: List<TypeTwoItem>) {
                     }
 
 
-
+                    it.english?.let { it1 ->
                     Text(
                         text = "English Meaning:",
                         fontFamily = kalPurush,
@@ -191,7 +212,7 @@ fun TypeTwoScreen(typeTwoItem: List<TypeTwoItem>) {
                                 colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
 
                     ) {
-                        it.english?.let { it1 ->
+
                             Text(
                                 text = it1,
                                 modifier = Modifier
@@ -217,5 +238,5 @@ fun TypeTwoScreen(typeTwoItem: List<TypeTwoItem>) {
 @Preview
 @Composable
 fun PreviewTypeTwoScreen() {
-    TypeTwoScreen(sampleTypeTwo)
+    TypeTwoScreen(sampleTypeTwo, "title") {}
 }

@@ -1,10 +1,11 @@
 package com.fsit.sohojnamaj.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,27 +22,39 @@ import com.fsit.sohojnamaj.ui.viewModel.SubCategoryViewModel
 @Composable
 fun SubCategoryScreenRoute(
     onBackClick: () -> Unit,
-    onTypeOneClick:(Int)->Unit,
-    onTypeTwoClick:(Int)->Unit,
+    onTypeOneClick:(Int,String)->Unit,
+    onTypeTwoClick:(Int,String)->Unit,
     viewModel: SubCategoryViewModel = hiltViewModel(),
 )
 {
 
-    Log.i("123321", "SubCategoryScreenRoute:  sub cat screen")
     val subCategory by viewModel.subcategoryList.collectAsStateWithLifecycle()
-    Log.i("123321", "SubCategoryScreenRoute: $subCategory")
-    SubCategoryScreen(subCategory=subCategory,onTypeOneClick=onTypeOneClick,onTypeTwoClick=onTypeTwoClick)
+    val title= viewModel.title
+    SubCategoryScreen(title=title,subCategory=subCategory,onTypeOneClick=onTypeOneClick,onTypeTwoClick=onTypeTwoClick,onBackClick=onBackClick)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubCategoryScreen(
     subCategory: List<SubCategory>,
-    onTypeOneClick: (Int) -> Unit,
-    onTypeTwoClick: (Int) -> Unit
+    onTypeOneClick: (Int, String) -> Unit,
+    onTypeTwoClick: (Int, String) -> Unit,
+    title: String,
+    onBackClick: () -> Unit
 ) {
         Scaffold (
-            topBar = { TopAppBar(title = {Text("Title2")}) }
+            topBar = { TopAppBar(
+                navigationIcon = {
+                                 IconButton(onClick = {onBackClick.invoke() }) {
+                                     Icon(
+                                         imageVector = Icons.Default.ArrowBack,
+                                         contentDescription = null
+                                     )
+                                 }
+                },
+                title = {Text(title)},
+
+            ) }
                 ){
 
             LazyColumn(modifier = Modifier.padding(it) ){
@@ -49,10 +62,10 @@ fun SubCategoryScreen(
                    Card(
                        onClick = {
                                  if (it.type==0){
-                                     onTypeOneClick.invoke(it.id)
+                                     onTypeOneClick.invoke(it.id,it.title)
                                  }
                            else {
-                               onTypeTwoClick.invoke(it.id)
+                               onTypeTwoClick.invoke(it.id,it.title)
                                  }
                        },
                        modifier = Modifier
@@ -78,5 +91,5 @@ fun SubCategoryScreen(
 @Preview
 @Composable
 fun PreviewSubCategoryScreen() {
-    SubCategoryScreen(sampleSubCategory, {}, {  })
+    SubCategoryScreen(sampleSubCategory, { _, _->}, { _, _-> }, "title", {})
 }

@@ -27,8 +27,8 @@ fun NavGraphBuilder.homeScreen(
 }
 
 fun NavGraphBuilder.subCategoryScreen(onBackClick: () -> Unit,
-                                      onTypeOneClick:(Int)->Unit,
-                                      onTypeTwoClick:(Int)->Unit,){
+                                      onTypeOneClick:(Int,String)->Unit,
+                                      onTypeTwoClick:(Int,String)->Unit,){
     composable(
         route="$subCategoryRoute/{$idArg}",
         arguments = listOf(
@@ -46,9 +46,11 @@ fun NavGraphBuilder.subCategoryScreen(onBackClick: () -> Unit,
 
 fun NavGraphBuilder.typeOneScreen(onBackClick: () -> Unit){
     composable(
-        route="$typeOneRoute/{$idArg}",
+        route="$typeOneRoute/{$idArg}/{$titleArg}",
         arguments = listOf(
-            navArgument(idArg){type= NavType.IntType}
+
+            navArgument(idArg){type = NavType.IntType},
+            navArgument(titleArg){type = NavType.StringType}
         )
     ){
         TypeOneScreenRoute(onBackClick = onBackClick)
@@ -57,9 +59,11 @@ fun NavGraphBuilder.typeOneScreen(onBackClick: () -> Unit){
 }
 fun NavGraphBuilder.typeTwoScreen(onBackClick: () -> Unit){
     composable(
-        route="$typeTwoRoute/{$idArg}",
+        route="$typeTwoRoute/{$idArg}/{$titleArg}",
         arguments = listOf(
-            navArgument(idArg){type= NavType.IntType}
+
+            navArgument(idArg){type = NavType.IntType},
+            navArgument(titleArg){type = NavType.StringType}
         )
     ){
         TypeTwoScreenRoute(onBackClick = onBackClick)
@@ -108,11 +112,11 @@ fun NavController.navigateToAyat(id:Int,title:String,navOptions: NavOptions? = n
 fun NavController.navigateToSubCategory(id:Int){
     this.navigate("$subCategoryRoute/${id}")
 }
-fun NavController.navigateToTypeOne(id:Int){
-    this.navigate("$typeOneRoute/${id}")
+fun NavController.navigateToTypeOne(id: Int, title: String){
+    this.navigate("$typeOneRoute/${id}/${title}")
 }
-fun NavController.navigateToTypeTwo(id:Int){
-    this.navigate("$typeTwoRoute/${id}")
+fun NavController.navigateToTypeTwo(id: Int, title: String){
+    this.navigate("$typeTwoRoute/${id}/${title}")
 }
 
 const val testNavigationRoute = "test_navigation_route"
