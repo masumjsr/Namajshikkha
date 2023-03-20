@@ -12,6 +12,9 @@ const val ayatScreenRoute= "ayat_route"
 const val subCategoryRoute="sub_category_route"
 const val typeOneRoute="type_one_route"
 const val typeTwoRoute="type_two_route"
+const val tasbiScreenRoute="tasbi_route"
+const val nameScreenRoute="name_route"
+
 
 internal const val idArg ="id"
 internal const val titleArg ="title"
@@ -20,9 +23,33 @@ fun NavGraphBuilder.homeScreen(
     onSettingClick: () -> Unit,
     onQuranClick: ()->Unit,
     onSubMenuClick: (Int)->Unit,
-) {
+    onTasbhiClick: ()->Unit,
+    onNameClick: ()->Unit,
+
+    ) {
     composable(route = homeNavigationRoute) {
-        HomeScreenRoute(onSettingClick=onSettingClick, onQuranClick = onQuranClick, onSubMenuClick = onSubMenuClick)
+        HomeScreenRoute(
+            onSettingClick=onSettingClick,
+            onQuranClick = onQuranClick,
+            onSubMenuClick = onSubMenuClick,
+            onTasbhiClick = onTasbhiClick,
+            onNameClick=onNameClick
+        )
+    }
+}
+fun NavGraphBuilder.nameScreen(
+    onBackClick: () -> Unit
+){
+    composable(route= nameScreenRoute){
+        NameScreenRoute(onBackClick = onBackClick)
+    }
+}
+
+fun NavGraphBuilder.tasbhiScreen(
+    onBackClick: () -> Unit
+){
+    composable(route = tasbiScreenRoute){
+        TasbhiScreenRoute(onBackClick=onBackClick)
     }
 }
 
@@ -106,6 +133,10 @@ fun NavController.navigateToSetting(navOptions: NavOptions? = null) {
     this.navigate(settingScreenRoute,navOptions)
 }
 
+fun NavController.navigateToTasbhi(navOptions: NavOptions? = null) {
+    this.navigate(tasbiScreenRoute,navOptions)
+}
+
 fun NavController.navigateToAyat(id:Int,title:String,navOptions: NavOptions? = null) {
     this.navigate("$ayatScreenRoute/${id}/${title}")
 }
@@ -125,6 +156,9 @@ const val testNavigationRoute = "test_navigation_route"
 
 fun NavController.navigateToTest(navOptions: NavOptions? = null){
     this.navigate(testNavigationRoute,navOptions)
+}
+fun NavController.navigateToName(navOptions: NavOptions? = null){
+    this.navigate(nameScreenRoute,navOptions)
 }
 
 

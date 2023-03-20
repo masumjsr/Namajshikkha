@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -59,7 +58,9 @@ fun HomeScreenRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     onSettingClick: () -> Unit,
     onQuranClick: () -> Unit,
-    onSubMenuClick: (Int) -> Unit
+    onSubMenuClick: (Int) -> Unit,
+    onTasbhiClick: () -> Unit,
+    onNameClick: () -> Unit
 ) {
     val currentWaqt by viewModel.currentWaqt.collectAsStateWithLifecycle()
     val currentLocation by viewModel.locationData.collectAsStateWithLifecycle()
@@ -71,7 +72,8 @@ fun HomeScreenRoute(
      onQuranClick=onQuranClick,
      onSubMenuClick = onSubMenuClick,
      currentLocation =currentLocation,
-     onLocationFound = { viewModel.updateLocation(it) }
+     onLocationFound = { viewModel.updateLocation(it) },
+     onNameClick = onNameClick,
  )
 }
 
@@ -83,7 +85,9 @@ fun HomeScreen(
     onQuranClick: () -> Unit,
     onSubMenuClick: (Int) -> Unit,
     currentLocation: String?,
-    onLocationFound:(LatLng)->Unit) {
+    onLocationFound: (LatLng) -> Unit,
+    onNameClick: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar (
@@ -176,7 +180,7 @@ fun HomeScreen(
 
                 NextWaqt(current)
                 Sahari(current)
-                ItemList(onQuranClick=onQuranClick,onSubMenuClick=onSubMenuClick)
+                ItemList(onQuranClick=onQuranClick,onSubMenuClick=onSubMenuClick,onNameClick=onNameClick)
                 Forbidden(current)
             }
 
@@ -291,7 +295,7 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
 
 
 @Composable
-fun ItemList(onQuranClick: () -> Unit,onSubMenuClick: (Int) -> Unit) {
+fun ItemList(onQuranClick: () -> Unit, onSubMenuClick: (Int) -> Unit, onNameClick: () -> Unit) {
         Row(
         modifier =Modifier.fillMaxWidth(),
         ){
@@ -312,6 +316,21 @@ fun ItemList(onQuranClick: () -> Unit,onSubMenuClick: (Int) -> Unit) {
         ItemCard(icon=R.drawable.mosque,title="জুম্মার নামাজ"){onSubMenuClick.invoke(5)}
         ItemCard(icon=R.drawable.iftar,title="রোযা ও তারাবী"){onSubMenuClick.invoke(6)}
         ItemCard(icon=R.drawable.mosque2,title="দুই ইদ"){onSubMenuClick.invoke(7)}
+    }
+    Row(
+        modifier =Modifier.fillMaxWidth(),
+    ){
+        ItemCard(icon=R.drawable.mosque,title="জুম্মার নামাজ"){onSubMenuClick.invoke(8)}
+        ItemCard(icon=R.drawable.iftar,title="রোযা ও তারাবী"){onSubMenuClick.invoke(9)}
+        ItemCard(icon=R.drawable.mosque2,title="দুই ইদ"){onSubMenuClick.invoke(10)}
+    }
+
+    Row(
+        modifier =Modifier.fillMaxWidth(),
+    ){
+        ItemCard(icon=R.drawable.mosque,title="হাদিস"){onSubMenuClick.invoke(11)}
+        ItemCard(icon=R.drawable.a_01_allah,title="আল্লাহ্‌র নাম"){onNameClick.invoke()}
+        ItemCard(icon=R.drawable.mosque2,title="দুই ইদ"){onSubMenuClick.invoke(10)}
     }
 }
 
@@ -639,9 +658,10 @@ fun PreviewHomeScreen() {
         current = Prayer(name = "মাগরিব", PrayerRange(0,1234,1234),text="7:10 PM - 5:50 AM"),
         onSettingClick = {},
         onQuranClick = {},
+        onSubMenuClick = {},
         currentLocation = "",
         onLocationFound = {},
-        onSubMenuClick = {}
+        onNameClick = {}
 
     )
 

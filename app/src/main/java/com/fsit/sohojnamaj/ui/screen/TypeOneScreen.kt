@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,7 +47,7 @@ fun TypeOneScreen(typeOneItem: List<TypeOneItem>, title: String, onBackClick: ()
                         )
                     }
                 },
-                title = {Text(title)})
+                title = {Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis)})
             }
                 ){
 
@@ -72,7 +73,7 @@ fun TypeOneScreen(typeOneItem: List<TypeOneItem>, title: String, onBackClick: ()
                        it.data?.let { it1 ->
                            Text(
                                modifier=Modifier.padding(16.dp),
-                               text = it1,
+                               text = it1.replace("&#xbb;","\uD83D\uDD34").replace("<br>","\n").replace("<b>","\n").replace("</b>",""),
                                fontFamily = kalPurush,
                                style = MaterialTheme.typography.bodyLarge
                            )

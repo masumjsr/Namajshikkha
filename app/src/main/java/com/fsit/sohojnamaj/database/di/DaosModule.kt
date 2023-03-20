@@ -34,4 +34,9 @@ object DaosModule {
     fun provideTypeTwoDao(
         database:AppDatabase
     ): TypeTwoItemDao = database.getTypeTwoDao()
+
+    @Provides
+    fun ProvideNameDao(
+        database: AppDatabase
+    ):NameDao = database.getName()
 }

@@ -18,4 +18,6 @@ interface SubCategoryDao {
         value ="Select * from sub_category where category=:category"
     )
     fun getSubCategory(category:Int): Flow<List<SubCategory>>
+    @Upsert
+    fun update(list:List<SubCategory>)
 }

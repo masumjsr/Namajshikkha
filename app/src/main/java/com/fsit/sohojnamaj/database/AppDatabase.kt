@@ -14,7 +14,8 @@ import com.fsit.sohojnamaj.model.dua.TypeTwoItem
     SuraDetails::class,
     SubCategory::class,
     TypeOneItem::class,
-    TypeTwoItem::class
+    TypeTwoItem::class,
+    Name::class,
 
     ],
     version =1,
@@ -26,5 +27,6 @@ abstract class AppDatabase : RoomDatabase(){
     abstract fun getSubCategoryDao():SubCategoryDao
     abstract fun getTypeOneDao():TypeOneItemDao
     abstract fun getTypeTwoDao():TypeTwoItemDao
+    abstract fun getName():NameDao
 
 }

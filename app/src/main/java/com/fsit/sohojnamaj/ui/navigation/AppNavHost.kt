@@ -29,7 +29,9 @@ fun AppNavHost(
         homeScreen (
             onSettingClick = { navController.navigateToSetting() },
             onQuranClick = { navController.navigateToQuran()},
-            onSubMenuClick = { navController.navigateToSubCategory(it) }
+            onSubMenuClick = { navController.navigateToSubCategory(it) },
+            onTasbhiClick = {navController.navigateToTasbhi()},
+            onNameClick = {navController.navigateToName()}
         )
         settingScreen(
             onBackClick=onBackClick
@@ -47,6 +49,7 @@ fun AppNavHost(
         typeTwoScreen(
             onBackClick=onBackClick
         )
+        nameScreen(onBackClick)
 
     }
 }

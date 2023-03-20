@@ -5,6 +5,7 @@ import android.content.ContextWrapper
 import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.fsit.sohojnamaj.util.LocaleProvider.Companion.init
 import com.pixplicity.easyprefs.library.Prefs
+import com.tanodxyz.gdownload.GDownload
 import dagger.hilt.android.HiltAndroidApp
 
 
@@ -23,6 +24,7 @@ class MyApp : Application(){
             .errorActivity(CustomErrorActivity::class.java)
             .apply()
         //Sync.initialize(this)
+        GDownload.init()
         super.onCreate()
 
     }

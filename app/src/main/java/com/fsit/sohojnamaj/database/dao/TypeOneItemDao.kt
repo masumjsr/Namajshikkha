@@ -19,4 +19,7 @@ interface TypeOneItemDao {
         value ="Select * from type_one where sub_category=:sub_category"
     )
     fun getTypeOne(sub_category:Int): Flow<List<TypeOneItem>>
+
+    @Upsert
+    fun update(list:List<TypeOneItem>)
 }
