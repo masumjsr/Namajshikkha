@@ -19,6 +19,12 @@ interface NameDao {
         value ="Select * from name"
     )
     fun getName(): Flow<List<Name>>
+    @Transaction
+    @Query(
+        value ="delete  from name"
+    )
+    fun delete()
     @Upsert
     fun update(list:List<Name>)
+
 }

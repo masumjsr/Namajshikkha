@@ -19,6 +19,7 @@ import com.fsit.sohojnamaj.model.dua.TypeTwoItem
 
     ],
     version =1,
+    exportSchema = true
 
 )
 abstract class AppDatabase : RoomDatabase(){

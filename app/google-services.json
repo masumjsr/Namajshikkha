@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "313667749503",
+    "firebase_url": "https://namaj-sikkha-9baef.firebaseio.com",
+    "project_id": "namaj-sikkha-9baef",
+    "storage_bucket": "namaj-sikkha-9baef.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:313667749503:android:ea38b4f77ef0a169",
+        "android_client_info": {
+          "package_name": "com.fsit.sohojnamaj"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "313667749503-p1pk44mntju2kqilbem5kgc58nnli428.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fsit.sohojnamaj",
+            "certificate_hash": "b9712857af1f5af5dff84f4d2e705256d865eaeb"
+          }
+        },
+        {
+          "client_id": "313667749503-gg8mtrmcrn3b17qvugrhsmk0a0sb1i8u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWOKXafZ68zlNRj_yXnmvQB-3YWzPQ2zI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "313667749503-gg8mtrmcrn3b17qvugrhsmk0a0sb1i8u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

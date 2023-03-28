@@ -1,7 +1,6 @@
 package com.fsit.sohojnamaj.ui.viewModel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fsit.sohojnamaj.data.repository.LocalRepository
@@ -43,6 +42,19 @@ class HomeViewModel @Inject constructor(
             initialValue = null
         )
 
+    val offsetData:StateFlow<Int> =prayerSettingRepository.prayerPreferenceData
+
+        .map {
+            it.hijri
+
+
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 0
+        )
+
     val currentWaqt= userData
         .map {waqtData->
 
@@ -67,7 +79,7 @@ class HomeViewModel @Inject constructor(
 
 
 
-                    AllPrayerRange(
+                    val all=AllPrayerRange(
                         previousIsha=previousIsha,
                         fajrRange=fajrRange,
                         morningForbiddenRange=morningForbiddenRange,
@@ -152,7 +164,9 @@ class HomeViewModel @Inject constructor(
                             ForbiddenTime("নিষিদ্ধ সময়(সকাল)",morningForbiddenRange.toTimeFormat()),
                             ForbiddenTime("নিষিদ্ধ সময় (দুপুর)",noonForbiddern.toTimeFormat()),
                             ForbiddenTime("নিষিদ্ধ সময় (সন্ধ্যা)",evenningForbidden.toTimeFormat())
-                        )
+                        ),
+                        all= listOf(fajrRange,dhurRange,asrRange,magribRange,isha),
+
                     )
                 }
             else Prayer()
@@ -193,9 +207,10 @@ class HomeViewModel @Inject constructor(
                tommorrow.add(Calendar.DAY_OF_MONTH,1)
                val offset= intArrayOf(
                    it.offsetModel.fajr,
-                   it.offsetModel.sunrise,
                    it.offsetModel.dhur,
-                   it.offsetModel.asr,it.offsetModel.sunset,it.offsetModel.magrib,it.offsetModel.isha)
+                   it.offsetModel.asr,
+                   it.offsetModel.magrib,
+                   it.offsetModel.isha)
 
                val praytime = PrayerTimeHelper.getPrayerTimeFromPrefs( context,today, offset =offset,it.latLng, method = it.method,majhab=it.majhab)
                val praytimeYesterDay = PrayerTimeHelper.getPrayerTimeFromPrefs(

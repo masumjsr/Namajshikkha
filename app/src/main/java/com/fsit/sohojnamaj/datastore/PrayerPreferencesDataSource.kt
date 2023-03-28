@@ -16,14 +16,13 @@ class PrayerPreferencesDataSource @Inject constructor(
 ) {
     val prayerPreferenceData = prayerPreferences.data
         .map {
+            Log.i("123321", "19:$it ")
             PrayerPreferenceModel(
                 OffsetModel(
                     it.fajrOffset,
-                    it.sunriseOffset,
                     it.dhuhrOffset,
                     it.asrOffset,
                     it.maghribOffset,
-                    it.sunsetOffset,
                     it.ishaOffset,
 
                 ),
@@ -45,16 +44,15 @@ class PrayerPreferencesDataSource @Inject constructor(
         }
     suspend fun updateOffset(id:Int,offSet:Int){
         prayerPreferences.updateData {
+            Log.i("123321", "updateSound: id=$id, offSet=$offSet")
 
             it.copy {
                 when(id){
                     0->fajrOffset=offSet
-                    1->sunriseOffset=offSet
-                    2->dhuhrOffset=offSet
-                    3->asrOffset=offSet
-                    4->sunsetOffset=offSet
-                    5->maghribOffset=offSet
-                    6->ishaOffset=offSet
+                    1->dhuhrOffset=offSet
+                    2->asrOffset=offSet
+                    3->maghribOffset=offSet
+                    4->ishaOffset=offSet
                 }
 
             }
@@ -63,9 +61,10 @@ class PrayerPreferencesDataSource @Inject constructor(
 
         }
     }
+
+
     suspend fun updateSound(id:Int,offSet:Int){
         prayerPreferences.updateData {
-            Log.i("123321", "updateSound: id=$id, offSet=$offSet")
 
             it.copy {
                 when(id){

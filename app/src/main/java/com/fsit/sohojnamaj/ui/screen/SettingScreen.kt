@@ -26,6 +26,8 @@ import com.fsit.sohojnamaj.model.PrayerPreferenceModel
 import com.fsit.sohojnamaj.model.SoundModel
 import com.fsit.sohojnamaj.ui.util.LargeDropdownMenu
 import com.fsit.sohojnamaj.ui.viewModel.SettingViewModel
+import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
+import java.util.*
 
 @Composable
 fun SettingScreenRoute(
@@ -41,6 +43,7 @@ fun SettingScreenRoute(
         updateSound = viewModel::updateSound,
         updateMajhab = viewModel::updateMajhab,
         updateMethod = viewModel::updateMethod,
+        updateHizri = viewModel::updateHijri
     )
 }
 
@@ -51,7 +54,8 @@ fun SettingScreen(
     updateOffset:(Int, Int)->Unit,
     updateSound:(Int, Int)->Unit,
     updateMethod:(Int)->Unit,
-    updateMajhab:(Int)->Unit
+    updateMajhab:(Int)->Unit,
+    updateHizri:(Int)->Unit
 
 ) {
     Scaffold(
@@ -70,35 +74,9 @@ fun SettingScreen(
             modifier = Modifier.padding(top=paddingValues.calculateTopPadding(), start = 16.dp,end =16.dp)
         )    {
             item{
+            HizriAdjustment(offset = setting.hijri, updateOffset =updateHizri )
 
-
-                Text("আযানের নটিফিকেশন সমন্বয়",style=MaterialTheme.typography.bodySmall)
-                OutlinedCard(
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .fillMaxWidth(),
-                    border = BorderStroke(1.dp, color = Color(54, 168, 160))
-                ) {
-                    val soundModel= setting.soundModel
-
-                    Log.i("123321", "SettingScreen: sound model is $soundModel")
-                    
-                    AzanItem("ফজর",soundModel.fajr) {
-                        updateSound.invoke(0,it)
-                    }
-                    AzanItem("যোহর",soundModel.dhur) {
-                        updateSound.invoke(1,it)
-                    }
-                    AzanItem("আসর",soundModel.asr) {
-                        updateSound.invoke(2,it)
-                    }
-                    AzanItem("মাগরিব",soundModel.magrib) {
-                        updateSound.invoke(3,it)
-                    }
-                    AzanItem("এশা",soundModel.isha) {
-                        updateSound.invoke(4,it)
-                    }
-                }
+                //Notification(setting, updateSound)
 
 
 
@@ -135,12 +113,47 @@ fun SettingScreen(
                     onItemSelected = { index, _ -> updateMajhab.invoke(index) },
                 )
                 TimeAdjustment(setting.offsetModel, updateOffset)
+                 TimeAdjustmentIfter(setting.offsetModel, updateOffset)
 
             }
 
         }
 
 
+    }
+}
+
+@Composable
+private fun Notification(
+    setting: PrayerPreferenceModel,
+    updateSound: (Int, Int) -> Unit,
+) {
+    Text("আযানের নটিফিকেশন সমন্বয়", style = MaterialTheme.typography.bodySmall)
+    OutlinedCard(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth(),
+        border = BorderStroke(1.dp, color = Color(54, 168, 160))
+    ) {
+        val soundModel = setting.soundModel
+
+        Log.i("123321", "SettingScreen: sound model is $soundModel")
+
+        AzanItem("ফজর", soundModel.fajr) {
+            updateSound.invoke(0, it)
+        }
+        AzanItem("যোহর", soundModel.dhur) {
+            updateSound.invoke(1, it)
+        }
+        AzanItem("আসর", soundModel.asr) {
+            updateSound.invoke(2, it)
+        }
+        AzanItem("মাগরিব", soundModel.magrib) {
+            updateSound.invoke(3, it)
+        }
+        AzanItem("এশা", soundModel.isha) {
+            updateSound.invoke(4, it)
+        }
     }
 }
 
@@ -164,29 +177,88 @@ private fun TimeAdjustment(
         OffsetItem("ফজর", offset.fajr) {
             updateOffset.invoke(0, it)
         }
-        OffsetItem("সূর্যোদয়", offset.sunrise) {
-            updateOffset.invoke(1, it)
-        }
+
         OffsetItem("যোহর", offset.dhur) {
-            updateOffset.invoke(2, it)
+            updateOffset.invoke(1, it)
 
         }
         OffsetItem("আসর", offset.asr) {
+            updateOffset.invoke(2, it)
+
+        }
+
+        OffsetItem("মাগরিব", offset.magrib) {
             updateOffset.invoke(3, it)
 
         }
-        OffsetItem("সূর্যাস্ত", offset.sunset) {
+        OffsetItem("এশা", offset.isha) {
             updateOffset.invoke(4, it)
 
         }
-        OffsetItem("মাগরিব", offset.magrib) {
-            updateOffset.invoke(5, it)
+    }
+}
+
+@Composable
+private fun HizriAdjustment(
+    offset:Int,
+    updateOffset: (Int) -> Unit,
+) {
+
+
+    Text(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth(),
+        text="হিজরি তারিখ  সমন্বয়",style=MaterialTheme.typography.bodySmall)
+    OutlinedCard(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth(),
+        border = BorderStroke(1.dp, color = Color(54, 168, 160))
+    ) {
+
+        HijriOffsetItem( offset) {
+            updateOffset.invoke(it)
+        }
+        val calendar = HijriCalendar()
+        calendar.add(Calendar.DAY_OF_MONTH,offset-1)
+        Text(
+            calendar.longDateString,
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            textAlign = TextAlign.Center
+
+        )
+
+
+    }
+}
+
+@Composable
+private fun TimeAdjustmentIfter(
+    offset: OffsetModel,
+    updateOffset: (Int, Int) -> Unit,
+) {
+    Text(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth(),
+        text="সেহেরী ও ইফতারের সময় সমন্বয়",style=MaterialTheme.typography.bodySmall)
+    OutlinedCard(
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth(),
+        border = BorderStroke(1.dp, color = Color(54, 168, 160))
+    ) {
+
+        OffsetItem("সেহেরী", offset.fajr) {
+            updateOffset.invoke(0, it)
+        }
+
+        OffsetItem("ইফতার", offset.magrib) {
+            updateOffset.invoke(3, it)
 
         }
-        OffsetItem("এশা", offset.isha) {
-            updateOffset.invoke(6, it)
 
-        }
     }
 }
 
@@ -219,6 +291,53 @@ fun OffsetItem(name: String, minute: Int, onAdjusted: (Int) -> Unit) {
                 textAlign = TextAlign.Center
             )
             Text(text = "   $minute মিনিট   ", textAlign = TextAlign.Center)
+            Text(
+                modifier = Modifier
+                    .clickable {
+                        onAdjusted.invoke(minute + 1)
+                    }
+                    .size(25.dp)
+                    .border(
+                        BorderStroke(1.dp, color = Color(54, 168, 160)),
+                        shape = RoundedCornerShape(25)
+                    ),
+                text = "+",
+                style=MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+
+}
+
+@Composable
+fun HijriOffsetItem(minute: Int, onAdjusted: (Int) -> Unit) {
+
+
+    Row(
+        modifier = Modifier
+            .padding(10.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier
+                    .clickable {
+                        onAdjusted.invoke(minute - 1)
+                    }
+                    .size(25.dp)
+                    .border(
+                        BorderStroke(1.dp, color = Color(54, 168, 160)),
+                        shape = RoundedCornerShape(25)
+                    ),
+                text = "-",
+                style=MaterialTheme.typography.bodyLarge,
+                textAlign = TextAlign.Center
+            )
+            Text(text = "   $minute দিন   ", textAlign = TextAlign.Center)
             Text(
                 modifier = Modifier
                     .clickable {
@@ -276,5 +395,5 @@ fun PreviewSettingScreen() {
     SettingScreen(onBackClick={}, setting = PrayerPreferenceModel(), updateOffset = {
         _,_->
     } ,
-        { _, _ -> } ,{},{})
+        { _, _ -> } ,{},{},{})
 }

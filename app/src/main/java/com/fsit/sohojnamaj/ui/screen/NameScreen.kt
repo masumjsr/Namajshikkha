@@ -126,12 +126,14 @@ fun PreviewNameScreen() {
 
 @Composable
 fun DialogLayout(item:Name= sampleName[0]) {
-    var logo by remember{ mutableStateOf(Icons.Default.PauseCircle) }
+    var logo by remember{ mutableStateOf(Icons.Default.PlayCircle) }
     val mediaPlayer= MediaPlayer.create(LocalView.current.context,item.audio)
     mediaPlayer.setOnCompletionListener {
     logo= Icons.Default.PlayCircle
     }
-    if(!mediaPlayer.isPlaying) mediaPlayer.start()
+
+        //mediaPlayer.start()
+
 
 
     Column (

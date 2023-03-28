@@ -17,39 +17,54 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        subCategoryScreen (
-            onBackClick=onBackClick,
-            onTypeOneClick = {id,title->
-                navController.navigateToTypeOne(id,title)
-                             },
-            onTypeTwoClick = {id,title->
-                navController.navigateToTypeTwo(id,title)
-            }
+        subCategoryScreen(
+            onBackClick = onBackClick,
+            onTypeOneClick = { id, title ->
+                navController.navigateToTypeOne(id, title)
+            },
+            onTypeTwoClick = { id, title ->
+                navController.navigateToTypeTwo(id, title)
+            },
+            onAlifBaaScreen = { navController.navigateToAlifBaScreen() },
+            onNuktaClick = { navController.navigateToNukta() }
         )
-        homeScreen (
+        homeScreen(
             onSettingClick = { navController.navigateToSetting() },
-            onQuranClick = { navController.navigateToQuran()},
+            onQuranClick = { navController.navigateToQuran() },
+            onSortQuranClick = { navController.navigateToSortQuran() },
             onSubMenuClick = { navController.navigateToSubCategory(it) },
-            onTasbhiClick = {navController.navigateToTasbhi()},
-            onNameClick = {navController.navigateToName()}
+            onTasbhiClick = { navController.navigateToTasbhi() },
+            onNameClick = { navController.navigateToName() },
+            onCompassScreen = { navController.navigateToCompassScreen() },
+            onZakatClick = { navController.navigateToZakat()}
         )
         settingScreen(
-            onBackClick=onBackClick
+            onBackClick = onBackClick
         )
         quranScreen(
             onBackClick = onBackClick,
-            onSuraClick = {id,title->navController .navigateToAyat(id,title)}
+            onSuraClick = { id, title -> navController.navigateToAyat(id, title) }
+        )
+        sortQuranScreen(
+            onBackClick = onBackClick,
+            onSuraClick = { id, title -> navController.navigateToAyat(id, title) }
         )
         ayatScreen(
             onBackClick = onBackClick
         )
         typeOneScreen(
-            onBackClick=onBackClick
+            onBackClick = onBackClick
         )
         typeTwoScreen(
-            onBackClick=onBackClick
+            onBackClick = onBackClick
         )
         nameScreen(onBackClick)
+        compassScreen(onBackClick)
+        tasbhiScreen(onBackClick)
+        alifBaScreen(onBackClick)
+        nuktaScreen { onBackClick.invoke() }
+        zakatScreen(onBackClick)
+
 
     }
 }

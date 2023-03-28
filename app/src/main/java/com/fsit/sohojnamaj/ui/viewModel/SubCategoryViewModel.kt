@@ -17,7 +17,7 @@ class SubCategoryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel(){
     val id= savedStateHandle.get<Int>(idArg)?:-1
-    val title= listOf("","গোসল ও ওযু","পাঁচ কালেমা সমূহ","নামাজের দোয়া","নামাজের নিয়ত","জুম্মার নামাজ","রোযা ও তারাবী","দুই ইদ","গোসল ও ওযু","পাঁচ কালেমা সমূহ","নামাজের দোয়া","নামাজের নিয়ত","জুম্মার নামাজ","রোযা ও তারাবী","দুই ইদ")[id]
+    val title= listOf("","গোসল ও ওযু","পাঁচ কালেমা সমূহ","নামাজের দোয়া","নামাজের নিয়ত","জুম্মার নামাজ","রোযা ও তারাবী","দুই ইদ","যাকাত","হজ ও ওমরা ","কুরবানী ও আকিকা","হাদিস","জুম্মার নামাজ","রোযা ও তারাবী","দুই ইদ")[id]
 
     val subcategoryList=subCategoryRepository.getSubCategory(id)
         .stateIn(

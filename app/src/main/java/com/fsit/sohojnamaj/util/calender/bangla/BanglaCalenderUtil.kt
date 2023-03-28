@@ -44,7 +44,7 @@ val banglaWeekDays = mapOf(
 
 val banglaSeasons = arrayOf("গ্রীষ্ম", "বর্ষা", "শরৎ", "হেমন্ত", "শীত", "বসন্ত")
 
-val totalDaysInMonthNew = arrayOf(31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30)
+val totalDaysInMonthNew = arrayOf(31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30)
 
 fun isLeapYear( year:Int) =
 ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);

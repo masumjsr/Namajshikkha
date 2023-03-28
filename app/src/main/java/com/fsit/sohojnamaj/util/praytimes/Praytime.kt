@@ -26,7 +26,7 @@ class Praytime {
             }
         }
         fun schedule(context:Context?,prayerPreferenceModel: PrayerPreferenceModel,userPreferences: UserData){
-            context?.apply{
+           /* context?.apply{
                // PraytimeWidget.update(this)
                // Khatam.schedule(this)
                // DailyReminder.schedule(this)
@@ -87,7 +87,7 @@ class Praytime {
                         soundModel.isha
                     )
                 }
-            }
+            }*/
         }
 
         private fun Context.configureAdzanScheduler(triggerTime: Long, requestCode: Int, prayer: PraytimeType, ringType: Int) {

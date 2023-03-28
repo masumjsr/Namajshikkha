@@ -22,25 +22,40 @@ import com.fsit.sohojnamaj.ui.viewModel.SubCategoryViewModel
 @Composable
 fun SubCategoryScreenRoute(
     onBackClick: () -> Unit,
-    onTypeOneClick:(Int,String)->Unit,
-    onTypeTwoClick:(Int,String)->Unit,
+    onTypeOneClick: (Int, String) -> Unit,
+    onTypeTwoClick: (Int, String) -> Unit,
     viewModel: SubCategoryViewModel = hiltViewModel(),
+    onAlifBaaScreen: () -> Unit,
+    onNuktaScreen: () -> Unit
 )
 {
 
     val subCategory by viewModel.subcategoryList.collectAsStateWithLifecycle()
     val title= viewModel.title
-    SubCategoryScreen(title=title,subCategory=subCategory,onTypeOneClick=onTypeOneClick,onTypeTwoClick=onTypeTwoClick,onBackClick=onBackClick)
+    val id =viewModel.id
+    SubCategoryScreen(
+        id=id,
+        title=title,
+        subCategory=subCategory,
+        onTypeOneClick=onTypeOneClick,
+        onTypeTwoClick=onTypeTwoClick,
+        onBackClick=onBackClick,
+        onAlifBaaScreen=onAlifBaaScreen,
+        onNuktaScreen=onNuktaScreen
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubCategoryScreen(
+    id: Int,
     subCategory: List<SubCategory>,
     onTypeOneClick: (Int, String) -> Unit,
     onTypeTwoClick: (Int, String) -> Unit,
     title: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onAlifBaaScreen: () -> Unit,
+    onNuktaScreen: () -> Unit
 ) {
         Scaffold (
             topBar = { TopAppBar(
@@ -58,6 +73,45 @@ fun SubCategoryScreen(
                 ){
 
             LazyColumn(modifier = Modifier.padding(it) ){
+                if (id==12){
+                    item {
+
+                        Card(
+                            onClick = {
+                            onAlifBaaScreen.invoke()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
+                        ) {
+
+                                Text(
+                                    modifier=Modifier.padding(16.dp),
+                                    text = "বাংলা উচ্চারণসহ আরবি ২৯ টি হরফ",
+                                    fontFamily = kalPurush,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+                        Card(
+                            onClick = {
+                            onNuktaScreen.invoke()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 10.dp, end = 10.dp, bottom = 5.dp)
+                        ) {
+
+                                Text(
+                                    modifier=Modifier.padding(16.dp),
+                                    text = "নুকতা",
+                                    fontFamily = kalPurush,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+
+
+                    }
+                }
                items(subCategory){
                    Card(
                        onClick = {
@@ -91,5 +145,5 @@ fun SubCategoryScreen(
 @Preview
 @Composable
 fun PreviewSubCategoryScreen() {
-    SubCategoryScreen(sampleSubCategory, { _, _->}, { _, _-> }, "title", {})
+    SubCategoryScreen(0, sampleSubCategory, { _, _->}, { _, _-> }, "title", {}, {}, {})
 }

@@ -1,9 +1,15 @@
 package com.fsit.sohojnamaj.ui.screen
 
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
+import android.view.LayoutInflater
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,22 +30,32 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fsit.sohojnamaj.R
 import com.fsit.sohojnamaj.model.SuraDetails
 import com.fsit.sohojnamaj.model.sampleSuraDetails
 import com.fsit.sohojnamaj.ui.theme.kalPurush
-import com.fsit.sohojnamaj.ui.util.ComposableLifecycle
 import com.fsit.sohojnamaj.ui.viewModel.SuraDetailsViewModel
+import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.audio.AudioAttributes
+import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.tanodxyz.gdownload.DownloadInfo
 import com.tanodxyz.gdownload.DownloadProgressListener
 import com.tanodxyz.gdownload.GDownload
+import kotlinx.coroutines.delay
 import java.io.File
-import java.text.DecimalFormat
 import java.util.*
+import kotlin.time.Duration.Companion.seconds
+
 
 @Composable
 fun AyatScreenRoute(
@@ -75,15 +91,24 @@ fun SuraDetailsScreen(
         File(context.cacheDir,formatted)
     }
     var logo by remember{ mutableStateOf(Icons.Default.PlayArrow) }
+    var isReady by remember{ mutableStateOf(false) }
+    var isShowFAB by remember{ mutableStateOf(true) }
 
-    var mediaPlayer:MediaPlayer? by remember{ mutableStateOf( null)}
-    if(mediaPlayer==null){
-        mediaPlayer= MediaPlayer()
-        mediaPlayer?.setDataSource(file.absolutePath)
-        mediaPlayer?.setOnCompletionListener {
-            logo= Icons.Default.PlayArrow
-        }
-    }
+
+    val  player = ExoPlayer.Builder(context).build()
+    val audioAttributes = AudioAttributes.Builder()
+        .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+        .setUsage(C.USAGE_MEDIA)
+        .build()
+    player.setAudioAttributes(audioAttributes,true)
+    //   playerView.setPlayer(player)
+
+
+    val mediaItem: MediaItem = MediaItem.fromUri(file.absolutePath)
+    player.setMediaItem(mediaItem)
+    player.prepare()
+    player.playWhenReady = false
+
 
 
 
@@ -91,12 +116,6 @@ fun SuraDetailsScreen(
     // Safely update the current lambdas when a new one is provided
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 
-
-
-  //  val currentOnResume by rememberUpdatedState(onResume)
-    //val currentOnPause by rememberUpdatedState(onPause)
-
-    // If `lifecycleOwner` changes, dispose and reset the effect
     DisposableEffect(lifecycleOwner) {
         // Create an observer that triggers our remembered callbacks
         // for lifecycle events
@@ -107,18 +126,12 @@ fun SuraDetailsScreen(
 
 
                 Lifecycle.Event.ON_PAUSE -> {
-                    Log.i("123321", "SuraDetailsScreen: pause")
+                  player.pause()
 
-                    if(mediaPlayer?.isPlaying==true){
-                      try {
-                          logo= Icons.Default.PlayArrow
-                          mediaPlayer?.pause()
-                      } catch (e: Exception) {
-                          Log.i("123321", "SuraDetailsScreen: ${e.message}")
-                      }
-                  }
+
 
                 }
+
                 Lifecycle.Event.ON_DESTROY-> {
                     Log.i("123321", "SuraDetailsScreen: destroy")
                 }
@@ -146,8 +159,9 @@ fun SuraDetailsScreen(
     if (showDialog){
 
         var progress by remember { mutableStateOf("connecting...") }
+        var percent by remember { mutableStateOf(0f)}
 
-        GDownload.singleDownload(context){
+       val v= GDownload.singleDownload(context){
             url="https://download.quranicaudio.com/quran/abdullaah_basfar/$formatted"
             name=file.absolutePath
 
@@ -156,7 +170,10 @@ fun SuraDetailsScreen(
                 override fun onConnectionEstablished(downloadInfo: DownloadInfo?) {}
 
                 override fun onDownloadProgress(downloadInfo: DownloadInfo?) {
-                   progress=DecimalFormat("##.##").format(downloadInfo?.progress)
+                  downloadInfo?.let {
+                    percent=it.progress.toFloat()
+                      progress="${android.text.format.Formatter.formatShortFileSize(context,it.downloadedContentLengthBytes)}/${android.text.format.Formatter.formatShortFileSize(context,it.contentLengthBytes)}"
+                  }
                 }
 
                 override fun onDownloadFailed(downloadInfo: DownloadInfo, ex: String) {
@@ -166,14 +183,14 @@ fun SuraDetailsScreen(
                 override fun onDownloadSuccess(downloadInfo: DownloadInfo) {
                     Log.i("123321", "onDownloadSuccess: ${downloadInfo.filePath}")
                     showDialog=false
-                    logo=Icons.Default.Pause
-                    mediaPlayer?.prepare()
-                    mediaPlayer?.start()
+                   isReady=true
+
+
                 }
 
                 override fun onDownloadIsMultiConnection(
                     downloadInfo: DownloadInfo,
-                    multiConnection: Boolean
+                    multiConnection: Boolean,
                 ) {}
 
                 override fun onPause(downloadInfo: DownloadInfo, paused: Boolean, reason: String) {}
@@ -181,7 +198,7 @@ fun SuraDetailsScreen(
                 override fun onRestart(
                     downloadInfo: DownloadInfo,
                     restarted: Boolean,
-                    reason: String
+                    reason: String,
                 ) {}
 
                 override fun onResume(downloadInfo: DownloadInfo, resume: Boolean, reason: String) {}
@@ -194,12 +211,13 @@ fun SuraDetailsScreen(
         AlertDialog(onDismissRequest = {},
 
             title = {
-                    Text(text = "Downloading $title")
+                    Text(text = "সূরা $title ডাউনলোড হচ্ছে")
             },
             text = {
-               Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                   CircularProgressIndicator()
-                   Text(text =progress,modifier = Modifier.padding(start = 12.dp), style = MaterialTheme.typography.titleLarge)
+               Column(modifier = Modifier.fillMaxWidth()) {
+                   Log.i("123321", "SuraDetailsScreen: $progress")
+                   LinearProgressIndicator(percent/100)
+                   Text(text =progress,modifier = Modifier.padding(start = 12.dp), style = MaterialTheme.typography.bodyMedium)
                }
             },
             confirmButton = {
@@ -223,29 +241,17 @@ fun SuraDetailsScreen(
 
     Scaffold (
         floatingActionButton = {
-                           FloatingActionButton(onClick = {
+                        if( isShowFAB) {
+                            FloatingActionButton(onClick = {
+                                    isShowFAB=false
+                                if(file.exists())isReady=true
 
-                               if(file.exists())
-                               {
-                                   if(mediaPlayer?.isPlaying==true){
-                                       logo=Icons.Default.PlayArrow
-                                       mediaPlayer?.pause()
-                                   }
-                                   else {
-                                       logo=Icons.Default.Pause
-                                       try {
-                                           mediaPlayer?.prepare()
-                                           mediaPlayer?.start()
-                                       } catch (e: Exception) {
-                                           mediaPlayer?.start()
 
-                                       }
-                                   }
-                               }
-                               else showDialog=true
-                           }) {
-                               Icon(imageVector = logo, contentDescription =null )
-                           }
+                                else showDialog=true
+                            }) {
+                                Icon(imageVector = logo, contentDescription =null )
+                            }
+                        }
         },
         topBar = {
             TopAppBar (
@@ -258,8 +264,13 @@ fun SuraDetailsScreen(
             )
         }
     ){
+
+        var currentValue by remember { mutableStateOf(0L) }
+
+
+
         Column(modifier = Modifier.padding(it)) {
-            LazyColumn(){
+            LazyColumn(Modifier.weight(1f)){
                 items(suraDetails){ sura ->
                     Card(
                         onClick = {},
@@ -280,35 +291,35 @@ fun SuraDetailsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                        Text(
-                            modifier = Modifier
+                            Text(
+                                modifier = Modifier
 
-                                .background(
-                                    color = Color(54, 168, 160),
-                                    shape = RoundedCornerShape(25)
-                                )
-                                .padding(
-                                    start = 5.dp, end = 5.dp, top = 1.dp, bottom = 1.dp
-                                ),
-                            text = "${sura.ayatNumber}",
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                            color = Color.White
-                        )
-                            IconButton(onClick = { /*TODO*/ }) {
-                                Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = null)
-                            }
-                    }
-
-
-                                    Text(
-                                        modifier= Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp),
-                                        text = sura.arabic,
-                                        textAlign = TextAlign.End,
-                                        fontSize = 24.sp
+                                    .background(
+                                        color = Color(54, 168, 160),
+                                        shape = RoundedCornerShape(25)
                                     )
+                                    .padding(
+                                        start = 5.dp, end = 5.dp, top = 1.dp, bottom = 1.dp
+                                    ),
+                                text = "${sura.ayatNumber}",
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                                color = Color.White
+                            )
+                            IconButton(onClick = { /*TODO*/ }) {
+                               // Icon(imageVector = Icons.Default.MoreHoriz, contentDescription = null)
+                            }
+                        }
+
+
+                        Text(
+                            modifier= Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            text = sura.arabic,
+                            textAlign = TextAlign.End,
+                            fontSize = 24.sp
+                        )
 
                         Divider( color = Color(229, 229, 229))
 
@@ -322,17 +333,86 @@ fun SuraDetailsScreen(
                         Divider( color = Color(229, 229, 229))
 
 
-                                    Text(
-                                        modifier=Modifier.padding(16.dp),
-                                        text = sura.text
-                                    )
+                        Text(
+                            modifier=Modifier.padding(16.dp),
+                            text = sura.text
+                        )
 
 
-                            }
-                        }
                     }
-
+                }
             }
+            AnimatedVisibility(visible = isReady) {
+           Card(
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .padding(5.dp)
+           ) {
+               Column(modifier = Modifier.fillMaxWidth()) {
+                   Row(
+                       modifier = Modifier.fillMaxWidth(),
+                       horizontalArrangement = Arrangement.SpaceBetween,
+                       verticalAlignment = Alignment.CenterVertically
+                   ) {
+                       Spacer(modifier = Modifier)
+                       Text(text = title ?: "")
+                       IconButton(onClick = {
+                           player.pause()
+                           isReady = false
+                           isShowFAB = true
+                       }) {
+                           Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                       }
+                   }
+
+
+
+
+                       AndroidView(
+
+                           factory = { context ->
+
+                               val view = LayoutInflater.from(context)
+                                   .inflate(R.layout.custom_exo, null, false)
+
+                               val playerView = view.findViewById<StyledPlayerView>(R.id.video_view)
+                               val imageViewArtwork =
+                                   playerView.findViewById<ImageView>(com.google.android.exoplayer2.ui.R.id.exo_artwork)
+                               imageViewArtwork.setImageResource(R.drawable.transparent_bg)
+
+                               playerView.player = player
+                               player.playWhenReady = isReady
+
+                               // do whatever you want...
+                               view // return the view
+                           },
+                           update = { view ->
+
+                               val playerView = view.findViewById<StyledPlayerView>(R.id.video_view)
+                               val controller=playerView.findViewById<LinearLayout>(R.id.root)
+                               controller.post {
+                                   Log.i("123321", "TypeTwoScreen: controller height: " + controller.height)
+
+                                   playerView.layoutParams=
+                                       LinearLayout.LayoutParams(controller.width, controller.height)
+                                   //  height=controller.height
+                                   //width=controller.width
+                               }
+
+
+
+                               // Update the view
+                           }
+                       )}
+               DisposableEffect(key1 = isReady) {
+
+                       onDispose {
+                   player.pause()
+                       }
+                   }
+
+        }
+        }  }
         }
 
     }

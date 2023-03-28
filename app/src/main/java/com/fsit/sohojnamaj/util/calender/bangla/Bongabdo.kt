@@ -20,9 +20,9 @@ class Bongabdo {
         bMonth = if(month % 12 == 0)  12 else month % 12;
         bDay = 1;
     }
-    fun isnew() =this.version == "new";
+    fun isnew() =this.version == "new0";
 
-   fun now(locale: Locale=androidx.compose.ui.text.intl.Locale.current):String {
+   fun now(locale: Locale=Locale.current):String {
         val today = Calendar.getInstance()
        today.timeInMillis=System.currentTimeMillis()
        return toBanglaDate(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH),locale);
@@ -48,7 +48,7 @@ class Bongabdo {
        val banglaCalendar=Calendar.getInstance()
            banglaCalendar.set(gYear,gMonth,gDay)
        val epochCalendar=Calendar.getInstance()
-           epochCalendar.set(epochYear,4,14)
+           epochCalendar.set(epochYear,4,13)
        val diff =banglaCalendar.timeInMillis-epochCalendar.timeInMillis
 
 

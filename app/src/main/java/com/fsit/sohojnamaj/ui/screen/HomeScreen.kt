@@ -41,6 +41,7 @@ import com.fsit.sohojnamaj.ui.viewModel.HomeViewModel
 import com.fsit.sohojnamaj.util.calender.bangla.Bongabdo
 import com.fsit.sohojnamaj.util.calender.primecalendar.civil.CivilCalendar
 import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
+import com.fsit.sohojnamaj.util.dateUtil.toTimeFormat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -58,22 +59,32 @@ fun HomeScreenRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     onSettingClick: () -> Unit,
     onQuranClick: () -> Unit,
+    onSortQuranClick: () -> Unit,
     onSubMenuClick: (Int) -> Unit,
     onTasbhiClick: () -> Unit,
-    onNameClick: () -> Unit
+    onNameClick: () -> Unit,
+    onCompassScreen: () -> Unit,
+    onZakatClick: () -> Unit
 ) {
     val currentWaqt by viewModel.currentWaqt.collectAsStateWithLifecycle()
     val currentLocation by viewModel.locationData.collectAsStateWithLifecycle()
+    val offset by viewModel.offsetData.collectAsStateWithLifecycle()
     val context= LocalView.current.context
 
  HomeScreen(
      current =currentWaqt,
+     offset=offset,
      onSettingClick =onSettingClick,
      onQuranClick=onQuranClick,
+     onSortQuranClick=onSortQuranClick,
      onSubMenuClick = onSubMenuClick,
      currentLocation =currentLocation,
      onLocationFound = { viewModel.updateLocation(it) },
      onNameClick = onNameClick,
+     onCompassScreen=onCompassScreen,
+     onTasbhiClick=onTasbhiClick,
+     onZakatClick=onZakatClick
+
  )
 }
 
@@ -81,12 +92,17 @@ fun HomeScreenRoute(
 @Composable
 fun HomeScreen(
     current: Prayer?,
+    offset: Int,
     onSettingClick: () -> Unit,
     onQuranClick: () -> Unit,
+    onSortQuranClick: () -> Unit,
     onSubMenuClick: (Int) -> Unit,
     currentLocation: String?,
     onLocationFound: (LatLng) -> Unit,
-    onNameClick: () -> Unit
+    onNameClick: () -> Unit,
+    onCompassScreen: () -> Unit,
+    onTasbhiClick: () -> Unit,
+    onZakatClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -166,7 +182,7 @@ fun HomeScreen(
         ){
 
             item {
-                DateSection(buttonText){
+                DateSection(buttonText,offset){
 
                     if (permissionState.status.isGranted){
                         isDismissedDialog=true
@@ -180,7 +196,16 @@ fun HomeScreen(
 
                 NextWaqt(current)
                 Sahari(current)
-                ItemList(onQuranClick=onQuranClick,onSubMenuClick=onSubMenuClick,onNameClick=onNameClick)
+                ItemList(
+                    onQuranClick=onQuranClick,
+                    onSortQuranClick=onSortQuranClick,
+                    onSubMenuClick=onSubMenuClick,
+                    onNameClick=onNameClick,
+                    onCompassScreen=onCompassScreen,
+                    onTasbhiClick=onTasbhiClick,
+                    onZakatClick=onZakatClick
+                )
+                Prayers(current)
                 Forbidden(current)
             }
 
@@ -236,9 +261,7 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
                     if (location == null)
                         Toast.makeText(context, "Cannot get location.", Toast.LENGTH_SHORT).show()
                     else {
-                        val lat = location.latitude
-                        val lon = location.longitude
-
+                        onLocationFound.invoke(LatLng(location.latitude,location.longitude))
 
                     }
 
@@ -295,11 +318,26 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
 
 
 @Composable
-fun ItemList(onQuranClick: () -> Unit, onSubMenuClick: (Int) -> Unit, onNameClick: () -> Unit) {
+fun ItemList(
+    onQuranClick: () -> Unit,
+    onSortQuranClick: () -> Unit,
+    onSubMenuClick: (Int) -> Unit,
+    onNameClick: () -> Unit,
+    onCompassScreen: () -> Unit,
+    onTasbhiClick: () -> Unit,
+    onZakatClick: () -> Unit
+) {
+    Row(
+    modifier =Modifier.fillMaxWidth(),
+){
+    ItemCard(icon=R.drawable.koran,title="হাদিস"){onSubMenuClick.invoke(11)}
+    ItemCard(icon=R.drawable.a_01_allah,title="আল্লাহ্‌র নাম"){onNameClick.invoke()}
+    ItemCard(icon=R.drawable.kaaba,title="কিবলা"){onCompassScreen.invoke()}
+}
         Row(
         modifier =Modifier.fillMaxWidth(),
         ){
-         ItemCard(icon=R.drawable.praying,title="নামাজের সময়সূচী"){}
+         ItemCard(icon=R.drawable.tasbih,title="তাজবি"){onTasbhiClick.invoke()}
          ItemCard(icon=R.drawable.quran,title="কুরআন"){onQuranClick()}
          ItemCard(icon=R.drawable.wudu,title="গোসল ও ওযু"){onSubMenuClick.invoke(1)}
     }
@@ -320,18 +358,20 @@ fun ItemList(onQuranClick: () -> Unit, onSubMenuClick: (Int) -> Unit, onNameClic
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.mosque,title="জুম্মার নামাজ"){onSubMenuClick.invoke(8)}
-        ItemCard(icon=R.drawable.iftar,title="রোযা ও তারাবী"){onSubMenuClick.invoke(9)}
-        ItemCard(icon=R.drawable.mosque2,title="দুই ইদ"){onSubMenuClick.invoke(10)}
+        ItemCard(icon=R.drawable.zakat,title="যাকাত"){onSubMenuClick.invoke(8)}
+        ItemCard(icon=R.drawable.hajj,title="হজ ও ওমরা"){onSubMenuClick.invoke(9)}
+        ItemCard(icon=R.drawable.qurbani,title="কুরবানী ও আকিকা "){onSubMenuClick.invoke(7)}
     }
-
-    Row(
+  Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.mosque,title="হাদিস"){onSubMenuClick.invoke(11)}
-        ItemCard(icon=R.drawable.a_01_allah,title="আল্লাহ্‌র নাম"){onNameClick.invoke()}
-        ItemCard(icon=R.drawable.mosque2,title="দুই ইদ"){onSubMenuClick.invoke(10)}
+        ItemCard(icon=R.drawable.zakat,title="ছোট সূরা"){onSortQuranClick.invoke()}
+        ItemCard(icon=R.drawable.hajj,title="সহীহ কুরআন শিক্ষা"){onSubMenuClick.invoke(12)}
+        ItemCard(icon=R.drawable.qurbani,title="যাকাত ক্যালকুলেটর"){onZakatClick.invoke()}
     }
+
+
+
 }
 
 @Composable
@@ -377,7 +417,8 @@ private fun Forbidden(current: Prayer?) {
                 text = "আজকের সম্ভাব্য নিষিদ্ধ সময়সমূহ",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
-                fontFamily = kalPurush
+                fontFamily = kalPurush,
+                color =  MaterialTheme.colorScheme.error
             )
             Divider(
                 modifier = Modifier
@@ -429,7 +470,7 @@ private fun Sahari(current: Prayer?) {
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth(),
-                text = "আগামীকালের সময়সুচী",
+                text = "আগামীকালের সময়সূচী",
                 style = MaterialTheme.typography.titleSmall,
                 textAlign = TextAlign.Center,
                 fontFamily = kalPurush
@@ -499,6 +540,130 @@ private fun Sahari(current: Prayer?) {
             }
         }
     }
+}
+
+@Composable
+private fun Prayers(current: Prayer?) {
+    current?.let {
+       if(it.all.size==5){
+           ElevatedCard(
+               modifier = Modifier
+                   .padding(top = 10.dp)
+                   .fillMaxWidth(),
+               colors = CardDefaults.elevatedCardColors(
+                   containerColor = Color(13, 13, 14, 255),
+                   contentColor = Color.White
+               )
+           ) {
+
+               Text(
+                   modifier = Modifier
+                       .padding(8.dp)
+                       .fillMaxWidth(),
+                   text = "নামাজের সময়সূচী",
+                   style = MaterialTheme.typography.titleSmall,
+                   textAlign = TextAlign.Center,
+                   fontFamily = kalPurush
+               )
+
+               Row(
+                   modifier = Modifier
+                       .padding(8.dp)
+                       .fillMaxWidth()
+               ) {
+
+
+                   Column(
+                       modifier = Modifier.weight(0.33f)
+                   ) {
+                       Text(
+                           modifier = Modifier.fillMaxWidth(),
+                           text = "ফজর", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text =  "যোহর",
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text =  "আসর",
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text =  "মাগরিব",
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+
+
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text =  "এশা",
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+
+                   }
+                   Column(
+                       modifier = Modifier.weight(0.33f)
+                   ) {
+                       Text(
+                           modifier = Modifier.fillMaxWidth(),
+                           text = it.all[0].toTimeFormat(), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text = it.all[1].toTimeFormat(),
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text =  it.all[2].toTimeFormat(),
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text =  it.all[3].toTimeFormat(),
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+
+
+                       Text(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .padding(8.dp),
+                           text =  it.all[4].toTimeFormat(),
+                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           fontFamily = kalPurush
+                       )
+
+                   }
+
+               }
+           }
+       }
+       }
 }
 
 @Composable
@@ -607,13 +772,14 @@ private fun CurrentWaqt(current: Prayer?) {
 
 
 @Composable
-private fun DateSection(currentLocation: String,onButtonClick:()->Unit) {
+private fun DateSection(currentLocation: String,offset:Int,onButtonClick:()->Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         val calendar = HijriCalendar()
+        calendar.add(Calendar.DAY_OF_MONTH,offset-1)
         val englishCalendar = CivilCalendar(locale = Locale("bn"))
         Column() {
             Text(
@@ -655,13 +821,23 @@ private fun DateSection(currentLocation: String,onButtonClick:()->Unit) {
 
 fun PreviewHomeScreen() {
     HomeScreen(
-        current = Prayer(name = "মাগরিব", PrayerRange(0,1234,1234),text="7:10 PM - 5:50 AM"),
+        current = Prayer(
+            name = "মাগরিব",
+            PrayerRange(0,1234,1234),
+            text="7:10 PM - 5:50 AM",
+            all = listOf()
+        ),
+        offset = 0,
         onSettingClick = {},
         onQuranClick = {},
+        onSortQuranClick = {},
         onSubMenuClick = {},
         currentLocation = "",
         onLocationFound = {},
-        onNameClick = {}
+        onNameClick = {},
+        onCompassScreen ={},
+        onTasbhiClick = {},
+        onZakatClick = {}
 
     )
 
