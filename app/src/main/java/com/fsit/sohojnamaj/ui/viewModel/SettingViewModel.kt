@@ -47,6 +47,9 @@ class SettingViewModel @Inject constructor(
     fun updateHijri(value:Int){
         viewModelScope.launch { prayerRepository.updatehijri(value) }
     }
+    fun updateTheme(value:Int){
+        viewModelScope.launch { prayerRepository.updateTheme(value) }
+    }
 
     fun updateMethod(value:Int){
         viewModelScope.launch { prayerRepository.updatemethod(value) }

@@ -16,7 +16,6 @@ class PrayerPreferencesDataSource @Inject constructor(
 ) {
     val prayerPreferenceData = prayerPreferences.data
         .map {
-            Log.i("123321", "19:$it ")
             PrayerPreferenceModel(
                 OffsetModel(
                     it.fajrOffset,
@@ -82,6 +81,12 @@ class PrayerPreferencesDataSource @Inject constructor(
     suspend fun updateHijri(date:Int){
         prayerPreferences.updateData {
             it.copy { hijri=date }
+        }
+    }
+
+    suspend fun updateTheme(date:Int){
+        prayerPreferences.updateData {
+            it.copy { darkmode=date }
         }
     }
 

@@ -36,8 +36,10 @@ fun AppNavHost(
             onTasbhiClick = { navController.navigateToTasbhi() },
             onNameClick = { navController.navigateToName() },
             onCompassScreen = { navController.navigateToCompassScreen() },
-            onZakatClick = { navController.navigateToZakat()}
+            onZakatClick = { navController.navigateToZakat()},
+            onDonationClick = { navController.navigateToDonationScreenRoute()}
         )
+        DonationScreen(onBackClick)
         settingScreen(
             onBackClick = onBackClick
         )

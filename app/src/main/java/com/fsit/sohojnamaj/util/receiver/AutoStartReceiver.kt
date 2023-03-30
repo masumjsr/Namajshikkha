@@ -33,7 +33,7 @@ class AutoStartReceiver : BroadcastReceiver() {
             combine(localRepository.userData,settingRepository.prayerPreferenceData){ setting, prayer->
 
 
-                Praytime.schedule(context,prayer,setting)
+                Praytime.schedule(context,prayer,setting,"auto start")
 
 
 

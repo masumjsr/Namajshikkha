@@ -2,4 +2,8 @@
 <resources>
 
     <style name="Theme.NamajShikkha" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_round</item>
+        <item name="postSplashScreenTheme">@style/Theme.NamajShikkha</item>
+    </style>
 </resources>

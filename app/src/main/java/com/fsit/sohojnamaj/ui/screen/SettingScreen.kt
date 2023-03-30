@@ -23,8 +23,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fsit.sohojnamaj.model.OffsetModel
 import com.fsit.sohojnamaj.model.PrayerPreferenceModel
-import com.fsit.sohojnamaj.model.SoundModel
+import com.fsit.sohojnamaj.ui.theme.kalPurush
 import com.fsit.sohojnamaj.ui.util.LargeDropdownMenu
+import com.fsit.sohojnamaj.ui.util.ThemeRadioGroupUsage
 import com.fsit.sohojnamaj.ui.viewModel.SettingViewModel
 import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
 import java.util.*
@@ -43,7 +44,8 @@ fun SettingScreenRoute(
         updateSound = viewModel::updateSound,
         updateMajhab = viewModel::updateMajhab,
         updateMethod = viewModel::updateMethod,
-        updateHizri = viewModel::updateHijri
+        updateHizri = viewModel::updateHijri,
+        updateTheme = viewModel::updateTheme
     )
 }
 
@@ -55,7 +57,8 @@ fun SettingScreen(
     updateSound:(Int, Int)->Unit,
     updateMethod:(Int)->Unit,
     updateMajhab:(Int)->Unit,
-    updateHizri:(Int)->Unit
+    updateHizri:(Int)->Unit,
+    updateTheme:(Int)->Unit
 
 ) {
     Scaffold(
@@ -74,9 +77,10 @@ fun SettingScreen(
             modifier = Modifier.padding(top=paddingValues.calculateTopPadding(), start = 16.dp,end =16.dp)
         )    {
             item{
-            HizriAdjustment(offset = setting.hijri, updateOffset =updateHizri )
+                ThemeSetting(setting,updateTheme)
+                HizriAdjustment(offset = setting.hijri, updateOffset =updateHizri )
 
-                //Notification(setting, updateSound)
+                Notification(setting, updateSound)
 
 
 
@@ -120,6 +124,63 @@ fun SettingScreen(
         }
 
 
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeSetting(setting: PrayerPreferenceModel, updateTheme: (Int) -> Unit) {
+
+    val modes = listOf("অটো",  "ডার্ক","লাইট")
+
+    var openThemeDialog by remember { mutableStateOf(false) }
+    if(openThemeDialog){
+        AlertDialog(onDismissRequest = {},
+
+            title = {
+                Text("থিম পরিবর্তন")
+            },
+            text = {
+                ThemeRadioGroupUsage(setting.darkMode,onItemClick ={
+                    updateTheme.invoke(it)
+                    openThemeDialog=false
+                })
+            },
+            confirmButton = {
+                Text(
+                    modifier = Modifier
+                        .clickable {
+                            openThemeDialog=false
+                        },
+                    text = "Cancel",
+                )
+            },
+
+            dismissButton = {
+
+            }
+        )
+    }
+
+    Text("অ্যাপ এর থিম", style = MaterialTheme.typography.bodySmall)
+
+    OutlinedCard(
+
+        modifier = Modifier
+            .padding(top = 12.dp)
+            .fillMaxWidth(),
+        border = BorderStroke(1.dp, color = Color(54, 168, 160)),
+        onClick = {openThemeDialog=true}
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = "থিম ", fontFamily = kalPurush)
+            Text(text = modes[setting.darkMode], fontFamily = kalPurush)
+        }
     }
 }
 
@@ -224,7 +285,9 @@ private fun HizriAdjustment(
         calendar.add(Calendar.DAY_OF_MONTH,offset-1)
         Text(
             calendar.longDateString,
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             textAlign = TextAlign.Center
 
         )
@@ -395,5 +458,5 @@ fun PreviewSettingScreen() {
     SettingScreen(onBackClick={}, setting = PrayerPreferenceModel(), updateOffset = {
         _,_->
     } ,
-        { _, _ -> } ,{},{},{})
+        { _, _ -> } ,{},{},{},{})
 }

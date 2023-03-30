@@ -200,7 +200,6 @@ object PrayerTimeHelper {
             if (isNetworkAvailable(ctx)) {
                 val gcd = Geocoder(ctx, Locale.getDefault())
                 val addresses = gcd.getFromLocation(latLng.latitude, latLng.longitude, 1)!!
-                Log.i("123321", "getCurrentPrayerTimeString: $addresses")
                 if (addresses.size > 0) {
                     address = if(addresses[0].thoroughfare!=null)addresses[0].thoroughfare else "অজানা"
                     Prefs.userCity = address?:"অজানা"

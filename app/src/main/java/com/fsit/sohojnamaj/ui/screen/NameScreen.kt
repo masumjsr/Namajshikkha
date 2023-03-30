@@ -37,7 +37,7 @@ fun NameScreenRoute(
     onBackClick: () -> Unit,
     viewModel: NameViewModel = hiltViewModel(),
 ) {
-    val names by viewModel.nameList.collectAsStateWithLifecycle()
+    val names= sampleName()
     NameScreen(onBackClick=onBackClick,names=names)
 
 }
@@ -46,7 +46,7 @@ fun NameScreenRoute(
 @Composable
 fun NameScreen(names: List<Name>, onBackClick: () -> Unit) {
 
-    var selectedItem by remember { mutableStateOf(sampleName[0]) }
+    var selectedItem by remember { mutableStateOf(names[0]) }
 
     var showDialog by remember {
         mutableStateOf(false)
@@ -125,7 +125,7 @@ fun PreviewNameScreen() {
 }
 
 @Composable
-fun DialogLayout(item:Name= sampleName[0]) {
+fun DialogLayout(item:Name= sampleName()[0]) {
     var logo by remember{ mutableStateOf(Icons.Default.PlayCircle) }
     val mediaPlayer= MediaPlayer.create(LocalView.current.context,item.audio)
     mediaPlayer.setOnCompletionListener {

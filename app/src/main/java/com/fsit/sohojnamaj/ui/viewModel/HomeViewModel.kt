@@ -8,6 +8,7 @@ import com.fsit.sohojnamaj.data.repository.PrayerSettingRepository
 import com.fsit.sohojnamaj.model.*
 import com.fsit.sohojnamaj.util.dateUtil.*
 import com.fsit.sohojnamaj.util.praytimes.PrayerTimeHelper
+import com.fsit.sohojnamaj.util.praytimes.Praytime
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -192,60 +193,96 @@ class HomeViewModel @Inject constructor(
             }*/
 
 
-
-
-          prayerSettingRepository.prayerPreferenceData.collectLatest {
-
-
-
-           if(it.latLng!= LatLng(0.0,0.0)){
-               val yesterday=Calendar.getInstance()
-               yesterday.add(Calendar.DAY_OF_MONTH,-1)
-               val today =Calendar.getInstance()
-               today.timeInMillis=System.currentTimeMillis()
-               val tommorrow =Calendar.getInstance()
-               tommorrow.add(Calendar.DAY_OF_MONTH,1)
-               val offset= intArrayOf(
-                   it.offsetModel.fajr,
-                   it.offsetModel.dhur,
-                   it.offsetModel.asr,
-                   it.offsetModel.magrib,
-                   it.offsetModel.isha)
-
-               val praytime = PrayerTimeHelper.getPrayerTimeFromPrefs( context,today, offset =offset,it.latLng, method = it.method,majhab=it.majhab)
-               val praytimeYesterDay = PrayerTimeHelper.getPrayerTimeFromPrefs(
-                   context,
-                   yesterday,
-                   offset,
-                   it.latLng, it.method, it.majhab
-               )
-               val praytimeTommorow = PrayerTimeHelper.getPrayerTimeFromPrefs(
-                   context,
-                   tommorrow,
-                   offset,
-                   it.latLng, it.method, it.majhab
-               )
-
-
-               localRepository.updateUserData(
-                   UserData(
-                       previousIsha = praytimeYesterDay.isya?:"",
-                       fajr = praytime.fajr?:"",
-                       dhur = praytime.dhuhr?:"",
-                       sunrise =praytime.sunrise?:"",
-                       asr = praytime.asr?:"",
-                       maghrib = praytime.maghrib ?:"",
-                       isha = praytime.isya?:"",
-                       nextFajr = praytimeTommorow.fajr?:"",
-                       nextMagrib = praytimeTommorow.maghrib?:"",
-                       location = praytime.address?:""
-                   )
-               )
-           }
+            prayerSettingRepository.prayerPreferenceData.collectLatest {
 
 
 
-          }
+                if(it.latLng!= LatLng(0.0,0.0)){
+                    val yesterday=Calendar.getInstance()
+                    yesterday.add(Calendar.DAY_OF_MONTH,-1)
+                    val today =Calendar.getInstance()
+                    today.timeInMillis=System.currentTimeMillis()
+                    val tommorrow =Calendar.getInstance()
+                    tommorrow.add(Calendar.DAY_OF_MONTH,1)
+                    val offset= intArrayOf(
+                        it.offsetModel.fajr,
+                        it.offsetModel.dhur,
+                        it.offsetModel.asr,
+                        it.offsetModel.magrib,
+                        it.offsetModel.isha)
+
+                    val praytime = PrayerTimeHelper.getPrayerTimeFromPrefs( context,today, offset =offset,it.latLng, method = it.method,majhab=it.majhab)
+                    val praytimeYesterDay = PrayerTimeHelper.getPrayerTimeFromPrefs(
+                        context,
+                        yesterday,
+                        offset,
+                        it.latLng, it.method, it.majhab
+                    )
+                    val praytimeTommorow = PrayerTimeHelper.getPrayerTimeFromPrefs(
+                        context,
+                        tommorrow,
+                        offset,
+                        it.latLng, it.method, it.majhab
+                    )
+
+
+                    localRepository.updateUserData(
+                        UserData(
+                            previousIsha = praytimeYesterDay.isya?:"",
+                            fajr = praytime.fajr?:"",
+                            dhur = praytime.dhuhr?:"",
+                            sunrise =praytime.sunrise?:"",
+                            asr = praytime.asr?:"",
+                            maghrib = praytime.maghrib ?:"",
+                            isha = praytime.isya?:"",
+                            nextFajr = praytimeTommorow.fajr?:"",
+                            nextMagrib = praytimeTommorow.maghrib?:"",
+                            location = praytime.address?:""
+                        )
+                    )
+                }
+
+
+
+            }
+
+            combine(localRepository.userData,prayerSettingRepository.prayerPreferenceData){ setting, prayer->
+
+
+
+                Praytime.schedule(context,prayer,setting,"Home Viewmodel")
+
+
+            }.collectLatest {
+
+            }
+
+
+
+        }
+
+    }
+    init {
+
+        viewModelScope.launch {
+            /*while (true) {
+                delay(60*1000)
+                systemTime.value=System.currentTimeMillis()
+            }*/
+
+
+
+            combine(localRepository.userData,prayerSettingRepository.prayerPreferenceData){ setting, prayer->
+
+
+
+                Praytime.schedule(context,prayer,setting,"Home Viewmodel")
+
+
+            }.collectLatest {
+
+            }
+
 
 
         }

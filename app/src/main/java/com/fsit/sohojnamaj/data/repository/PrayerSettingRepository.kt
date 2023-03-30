@@ -13,6 +13,7 @@ class PrayerSettingRepository @Inject constructor(
     suspend fun updateOffset(id:Int,offSet:Int)=prayerPreferenceDataSource.updateOffset(id,offSet)
     suspend fun updateSound(id:Int,offSet:Int)=prayerPreferenceDataSource.updateSound(id,offSet)
     suspend fun updatehijri(i:Int)=prayerPreferenceDataSource.updateHijri(i)
+    suspend fun updateTheme(i:Int)=prayerPreferenceDataSource.updateTheme(i)
     suspend fun updatemethod(id:Int)=prayerPreferenceDataSource.updateMethod(id)
     suspend fun updateMajhab(id:Int)=prayerPreferenceDataSource.updateMajhab(id)
 }

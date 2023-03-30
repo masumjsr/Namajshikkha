@@ -14,8 +14,8 @@ class Compass(context: Context) : SensorEventListener {
 
     private var listener: CompassListener? = null
     private val sensorManager: SensorManager
-    private val gsensor: Sensor
-    private val msensor: Sensor
+    private var gsensor: Sensor?=null
+    private var msensor: Sensor?=null
     private val mGravity = FloatArray(3)
     private val mGeomagnetic = FloatArray(3)
     private val R = FloatArray(9)
@@ -97,6 +97,10 @@ class Compass(context: Context) : SensorEventListener {
         sensorManager = context
             .getSystemService(Context.SENSOR_SERVICE) as SensorManager
         gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        msensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+        try {
+            msensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+        } catch (e: Exception) {
+            msensor==null
+        }
     }
 }

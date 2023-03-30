@@ -47,7 +47,8 @@ fun NavGraphBuilder.homeScreen(
     onTasbhiClick: ()->Unit,
     onNameClick: ()->Unit,
     onCompassScreen: ()->Unit,
-    onZakatClick: ()->Unit
+    onZakatClick: ()->Unit,
+    onDonationClick: ()->Unit,
 
     ) {
     composable(route = homeNavigationRoute) {
@@ -60,6 +61,7 @@ fun NavGraphBuilder.homeScreen(
             onNameClick=onNameClick,
             onCompassScreen=onCompassScreen,
             onZakatClick=onZakatClick,
+            onDonationClick=onDonationClick,
         )
     }
 }
@@ -245,4 +247,16 @@ fun NavGraphBuilder.zakatScreen(
 }
 fun NavController.navigateToZakat(navOptions: NavOptions? = null){
     this.navigate(zakatScreenRoute,navOptions)
+}
+
+const val DonationScreenRoute="Donation_route"
+fun NavGraphBuilder.DonationScreen(
+    onBackClick: () -> Unit
+){
+    composable(route= DonationScreenRoute){
+        DonationScreenRoute(onBackClick = onBackClick)
+    }
+}
+fun NavController.navigateToDonationScreenRoute(navOptions: NavOptions? = null){
+    this.navigate(DonationScreenRoute,navOptions)
 }

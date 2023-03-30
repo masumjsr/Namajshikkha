@@ -2,47 +2,60 @@ package com.fsit.sohojnamaj.util.foreground
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
-import android.media.AudioManager
+import android.content.Intent
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.work.RxWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import com.fsit.sohojnamaj.MainActivity
 import com.fsit.sohojnamaj.R
+import com.fsit.sohojnamaj.constants.Extra
 import com.fsit.sohojnamaj.constants.NotificationConstants
 import com.fsit.sohojnamaj.data.Prefs
-import com.wagyufari.dzikirqu.constants.Extra
+import com.fsit.sohojnamaj.util.praytimes.SoundService
 import io.reactivex.Single
+
 
 class AdzanForegroundNotification(appContext: Context, workerParams: WorkerParameters):
     RxWorker(appContext,workerParams){
     val mChannelId = "com.fsit.sohojnamaj.adzan"
     private var notificationManager: NotificationManager? =null
 
-    val mp = MediaPlayer()
+    private val mp: MediaPlayer = MediaPlayer()
 
     override fun createWork(): Single<Result> {
-        applicationContext.createForegroundNotification("${inputData.getString(
-            Extra.EXTRA_PRAYER).toString()} waqt salat")
+
+        val triggerTime= inputData.getLong(Extra.EXTRA_TRIGGER_TIME,0)
+
+
 
         return Single.create { emitter->
-            mp.setAudioStreamType(AudioManager.STREAM_RING)
-            mp.setDataSource(applicationContext, Uri.parse("android.resource://"+applicationContext.packageName+"/"+Prefs.muadzin))
-            mp.prepare()
-            mp.start()
-            mp.setOnCompletionListener {
-                emitter.onSuccess(Result.success())
-                applicationContext.createNotification("Fazor waqt ")
+
+
+
+
+            val service =Intent(applicationContext, SoundService::class.java)
+            service.putExtra(Extra.EXTRA_PRAYER,"")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                applicationContext.startForegroundService(service)
+            }
+            else{
+                applicationContext.startService(service)
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun createChannel(){
+
         val importance = NotificationManager.IMPORTANCE_HIGH
         val mChannel = NotificationChannel(mChannelId, NotificationConstants.mChannelNameAdzan,importance)
         notificationManager?.createNotificationChannel(mChannel)
@@ -57,12 +70,17 @@ class AdzanForegroundNotification(appContext: Context, workerParams: WorkerParam
         }
 
         WorkManager.getInstance(applicationContext)
+        val notificationIntent = Intent(this.applicationContext, MainActivity::class.java)
+        val contentIntent =
+            PendingIntent.getActivity(this.applicationContext, 0, notificationIntent, 0)
+
 
         val notification = NotificationCompat.Builder(applicationContext,mChannelId)
             .setContentText(title)
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setContentIntent(contentIntent)
             .setDeleteIntent(WorkManager.getInstance(applicationContext).createCancelPendingIntent(id))
             .setSmallIcon(R.drawable.ic_android_black_24dp)
             .build()

@@ -25,9 +25,10 @@ class ExampleUnitTest {
 
     @Before
         fun setup(){
+
             val fixCalender=Calendar.getInstance()
             fixCalender.set(2023,2,4)
-            prayerTimeUtil= PrayerTimeUtil()
+           // prayerTimeUtil= PrayerTimeUtil()
         }
 
     @Test
@@ -50,7 +51,10 @@ class ExampleUnitTest {
 
     @Test
     fun testEnglishToBangla(){
+        //if(1680096783037 in 1680096778000.. 1680096782000)
 
+
+        //assertEquals((1680096783494 in (1680096780000-2000).. (1680096780000+2000)),true)
     }
     @Test
     fun testDateConversion(){

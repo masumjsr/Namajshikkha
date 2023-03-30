@@ -50,7 +50,7 @@ fun NamajShikkhaTheme(
         val systemUiController = rememberSystemUiController()
         if(darkTheme){
             systemUiController.setSystemBarsColor(
-                color = Color.Transparent
+                color = DarkSystem
             )
         }else{
             systemUiController.setSystemBarsColor(
@@ -59,12 +59,14 @@ fun NamajShikkhaTheme(
         }
         SideEffect {
             /* the default code did the same cast here - might as well use our new variable! */
-           /* currentWindow.statusBarColor = colorScheme.primary.toArgb()
-            *//* accessing the insets controller to change appearance of the status bar, with 100% less deprecation warnings *//*
+            /* currentWindow.statusBarColor = colorScheme.primary.toArgb()
+             *//* accessing the insets controller to change appearance of the status bar, with 100% less deprecation warnings *//*
             WindowCompat.getInsetsController(currentWindow, view).isAppearanceLightStatusBars =
                 darkTheme*/
         }
     }
+
+
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -32,7 +32,6 @@ class PreferencesDataSource @Inject constructor(
         }
     suspend fun updateUserData(userData: UserData){
 
-        Log.i("123321", "updateUserData:  sunrise set at ${userData.sunrise}")
         userPreferences.updateData {
             it.copy {
                 fajr = userData.fajr?:""

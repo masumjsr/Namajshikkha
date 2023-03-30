@@ -5,6 +5,7 @@ import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.util.Log
 import com.fsit.sohojnamaj.PrayerTime
 import com.fsit.sohojnamaj.UserPreferences
 import com.fsit.sohojnamaj.data.Prefs
@@ -12,6 +13,8 @@ import com.fsit.sohojnamaj.model.PrayerPreferenceModel
 import com.fsit.sohojnamaj.model.UserData
 import com.fsit.sohojnamaj.util.AlarmHelper
 import com.fsit.sohojnamaj.util.dateUtil.toDate
+import com.fsit.sohojnamaj.util.dateUtil.toDateFormat
+import com.fsit.sohojnamaj.util.dateUtil.toTimeFormat
 import com.fsit.sohojnamaj.util.receiver.AdzanReceiver
 import com.fsit.sohojnamaj.util.receiver.TickReceiver
 import java.util.*
@@ -25,8 +28,9 @@ class Praytime {
                 registerReceiver(TickReceiver(), IntentFilter(Intent.ACTION_TIME_CHANGED))
             }
         }
-        fun schedule(context:Context?,prayerPreferenceModel: PrayerPreferenceModel,userPreferences: UserData){
-           /* context?.apply{
+        fun schedule(context:Context?,prayerPreferenceModel: PrayerPreferenceModel,userPreferences: UserData,source:String){
+            Log.i("123321", "schedule: scheduing from $source")
+           context?.apply{
                // PraytimeWidget.update(this)
                // Khatam.schedule(this)
                // DailyReminder.schedule(this)
@@ -35,6 +39,7 @@ class Praytime {
                 val asr=userPreferences.asr.toDate()
                 val magrib=userPreferences.maghrib.toDate()
                 val isha=userPreferences.isha.toDate()
+                val nextFajr=userPreferences.nextFajr.toDate()
 
                 if (prayerPreferenceModel.latLng.latitude == 0.0 || prayerPreferenceModel.latLng.longitude == 0.0) {
                     return
@@ -87,13 +92,23 @@ class Praytime {
                         soundModel.isha
                     )
                 }
-            }*/
+               if (System.currentTimeMillis()<nextFajr) {
+                   configureAdzanScheduler(
+                       fajr,
+                       AlarmHelper.mFajrRequestCode,
+                       PraytimeType.Fajr,
+                       soundModel.fajr
+                   )
+               }
+            }
         }
 
         private fun Context.configureAdzanScheduler(triggerTime: Long, requestCode: Int, prayer: PraytimeType, ringType: Int) {
             val alarmMgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val alarmIntent = AdzanReceiver.getPendingIntent(this, requestCode, triggerTime, prayer, ringType)
             alarmMgr.cancel(alarmIntent)
+            Log.i("123321", "configureAdzanScheduler: ${prayer.name} trigger time: ${triggerTime.toDateFormat()}")
+
             alarmMgr.setAlarmClock(AlarmManager.AlarmClockInfo(triggerTime, null), alarmIntent)
         }
 

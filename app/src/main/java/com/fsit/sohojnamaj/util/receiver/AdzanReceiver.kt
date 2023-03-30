@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -15,21 +16,23 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import com.fsit.sohojnamaj.PrayerTime
 import com.fsit.sohojnamaj.R
+import com.fsit.sohojnamaj.constants.Extra
+import com.fsit.sohojnamaj.constants.Extra.EXTRA_PRAYER
+import com.fsit.sohojnamaj.constants.Extra.EXTRA_TRIGGER_TIME
 import com.fsit.sohojnamaj.constants.RingType
+import com.fsit.sohojnamaj.data.Prefs
 import com.fsit.sohojnamaj.data.repository.LocalRepository
 import com.fsit.sohojnamaj.data.repository.PrayerRepository
 import com.fsit.sohojnamaj.data.repository.PrayerSettingRepository
 import com.fsit.sohojnamaj.model.AlarmModel
 import com.fsit.sohojnamaj.util.dateUtil.*
-import com.fsit.sohojnamaj.util.foreground.AdzanForegroundNotification
 import com.fsit.sohojnamaj.util.praytimes.Praytime
 import com.fsit.sohojnamaj.util.praytimes.PraytimeType
+import com.fsit.sohojnamaj.util.praytimes.SoundService
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -45,9 +48,7 @@ class AdzanReceiver : BroadcastReceiver() {
     private var notificationManager: NotificationManager? = null
 
     companion object {
-        const val EXTRA_PRAYER = "extra_prayer"
         const val EXTRA_RING_TYPE = "extra_ring"
-        const val EXTRA_TRIGGER_TIME = "extra_trigger_time"
 
         fun getPendingIntent(
             context: Context,
@@ -72,35 +73,56 @@ class AdzanReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.i("123321", "onReceive: adazan received")
         notificationManager  = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val triggerTime = intent?.getLongExtra(EXTRA_TRIGGER_TIME,0)?:0
         val prayer = PraytimeType.valueOf(intent?.getStringExtra(EXTRA_PRAYER) ?: PraytimeType.Refresh.name)
         val ringType = intent?.getIntExtra(EXTRA_RING_TYPE, RingType.SOUND)
 
-        if(Calendar.getInstance().timeInMillis in triggerTime-2000.. triggerTime+2000){
+        Log.i("123321", "onReceive: create work with prayer ${prayer.name}" )
+
+
+        if(Calendar.getInstance().timeInMillis in triggerTime-2000.. triggerTime+5000){
+            CoroutineScope(Dispatchers.IO).launch {
+                Log.i("123321", "onReceive: scope change")
+                combine(localRepository.userData,settingRepository.prayerPreferenceData){ setting, prayer->
+
+
+                    Praytime.schedule(context,prayer,setting,"receiver")
+
+
+
+                }
+                    .distinctUntilChanged()
+                    .collectLatest {  }
+            }
             if(ringType == RingType.SOUND){
-                WorkManager.getInstance(context)
+              /*  WorkManager.getInstance(context)
                     .enqueue(OneTimeWorkRequestBuilder<AdzanForegroundNotification>()
-                        .setInputData(workDataOf(EXTRA_PRAYER to prayer.name))
+                        .setInputData(workDataOf(EXTRA_PRAYER to prayer.name, EXTRA_TRIGGER_TIME to triggerTime))
                         .build()
-                    )
+                    )*/
+                val service =Intent(context, SoundService::class.java)
+                service.putExtra(EXTRA_PRAYER,prayer.name)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(service)
+                }
+                else{
+                    context.startService(service)
+                }
             } else if(ringType== RingType.NOTIFICATION){
-               context.createNotification(prayer.name)
+                Log.i("123321", "onReceive: create ring noti")
+                context.createNotification(prayer.name)
             }
         }
 
-      CoroutineScope(Dispatchers.IO).launch {
-          combine(localRepository.userData,settingRepository.prayerPreferenceData){ setting, prayer->
+        else{
+            Log.i("123321", "onReceive: ${Calendar.getInstance().timeInMillis} in ${triggerTime-2000}.. ${triggerTime+2000}  system=${System.currentTimeMillis() 
+            } trigger =$triggerTime" +
+                    "")
+        }
 
 
-            Praytime.schedule(context,prayer,setting)
-
-
-
-         }.collect()
-      }
 
     }
 
@@ -125,6 +147,8 @@ class AdzanReceiver : BroadcastReceiver() {
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
+
+            .setSound(Uri.parse("android.resource://"+applicationContext.packageName+"/"+ Prefs.muadzin),)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .build()
 

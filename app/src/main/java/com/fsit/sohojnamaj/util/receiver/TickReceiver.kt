@@ -29,7 +29,7 @@ class TickReceiver:BroadcastReceiver() {
             combine(localRepository.userData,settingRepository.prayerPreferenceData){ setting, prayer->
 
 
-                Praytime.schedule(p0,prayer,setting)
+                //Praytime.schedule(p0,prayer,setting)
 
 
 

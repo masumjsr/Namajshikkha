@@ -2,10 +2,14 @@ package com.fsit.sohojnamaj.ui.screen
 
 import android.Manifest
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -13,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
@@ -20,9 +25,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +49,9 @@ import com.fsit.sohojnamaj.util.calender.bangla.Bongabdo
 import com.fsit.sohojnamaj.util.calender.primecalendar.civil.CivilCalendar
 import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
 import com.fsit.sohojnamaj.util.dateUtil.toTimeFormat
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
@@ -52,6 +62,8 @@ import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.google.android.gms.tasks.Task
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 @Composable
@@ -64,7 +76,8 @@ fun HomeScreenRoute(
     onTasbhiClick: () -> Unit,
     onNameClick: () -> Unit,
     onCompassScreen: () -> Unit,
-    onZakatClick: () -> Unit
+    onZakatClick: () -> Unit,
+    onDonationClick: () -> Unit
 ) {
     val currentWaqt by viewModel.currentWaqt.collectAsStateWithLifecycle()
     val currentLocation by viewModel.locationData.collectAsStateWithLifecycle()
@@ -83,7 +96,8 @@ fun HomeScreenRoute(
      onNameClick = onNameClick,
      onCompassScreen=onCompassScreen,
      onTasbhiClick=onTasbhiClick,
-     onZakatClick=onZakatClick
+     onZakatClick=onZakatClick,
+     onDonationClick=onDonationClick,
 
  )
 }
@@ -103,6 +117,7 @@ fun HomeScreen(
     onCompassScreen: () -> Unit,
     onTasbhiClick: () -> Unit,
     onZakatClick: () -> Unit,
+    onDonationClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -195,6 +210,7 @@ fun HomeScreen(
                 CurrentWaqt(current)
 
                 NextWaqt(current)
+                DonationSlide(onDonationClick=onDonationClick)
                 Sahari(current)
                 ItemList(
                     onQuranClick=onQuranClick,
@@ -214,6 +230,79 @@ fun HomeScreen(
 
 
         }
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalPagerApi::class
+)
+@Composable
+fun DonationSlide(onDonationClick: () -> Unit) {
+    val context= LocalView.current.context
+    val icons= listOf(R.drawable.rate,R.drawable.charity)
+    val titles= listOf("৫ স্টার দিন","ডোনেশন দিন")
+    val description= listOf("অ্যাপটি ভাল লেগে থাকলে প্লেস্টোরে গিয়ে ভাল রিভিউ এবং ৫ স্টার দিন","ডোনেশনের মাধ্যমে ভবিষ্যতে আরো দীনি কাজ করতে উদ্বুদ্ধ করুন")
+    val state = rememberPagerState()
+
+
+    LaunchedEffect(key1 = state.currentPage) {
+        launch {
+            delay(3000)
+            with(state) {
+                val target = if (currentPage < 2 - 1) currentPage + 1 else 0
+
+               state.animateScrollToPage(target)
+            }
+        }
+    }
+    HorizontalPager(
+        state = state,
+        count = 2
+    ) { page ->
+    OutlinedCard(
+
+        onClick = {
+
+                  if(page ==0){
+                      val uri: Uri = Uri.parse("market://details?id=com.fsit.sohojnamaj")
+                      val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+                      // To count with Play market backstack, After pressing back button,
+                      // to taken back to our application, we need to add following flags to intent.
+                      goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
+                              Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                              Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                      try {
+                          context.startActivity(goToMarket)
+                      } catch (e: ActivityNotFoundException) {
+                          context.startActivity(Intent(Intent.ACTION_VIEW,
+                              Uri.parse("http://play.google.com/store/apps/details?id=com.fsit.sohojnamaj")))
+                      }
+                  }
+                else onDonationClick.invoke()
+        },
+        modifier = Modifier.padding(5.dp)
+
+    ) {
+        Row(modifier =Modifier.padding(8.dp).fillMaxWidth()){
+            Image(
+                modifier= Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+
+
+                    .background(MaterialTheme.colorScheme.primary)
+                    .padding(5.dp),
+                painter = painterResource(id = icons[page]), contentDescription = null)
+            Column(modifier = Modifier
+
+                .padding(5.dp)) {
+                Text(text = titles[page], fontFamily = kalPurush, style =MaterialTheme.typography.titleMedium, fontWeight =
+                FontWeight.Bold)
+                Text(text = description[page], fontFamily = kalPurush, style = MaterialTheme.typography.bodySmall)
+            }
+
+        }
+    }
+    }
+}
 
 @Composable
 fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
@@ -284,7 +373,7 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
                 if (location == null)
                     Toast.makeText(context, "Cannot get location.", Toast.LENGTH_SHORT).show()
                 else {
-
+                    Log.i("123321", "HandleLocation: location founded")
 
                     onLocationFound.invoke(LatLng(location.latitude,location.longitude))
                 }
@@ -303,9 +392,11 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
                     IntentSenderRequest.Builder(exception.resolution).build()
                 )
             } catch (sendEx: IntentSender.SendIntentException) {
+                Log.i("123321", "HandleLocation: ${sendEx.message}")
                 // Ignore the error.
             }
         }
+        Log.i("123321", "HandleLocation: ${exception.message}")
     }
 
 
@@ -330,44 +421,53 @@ fun ItemList(
     Row(
     modifier =Modifier.fillMaxWidth(),
 ){
-    ItemCard(icon=R.drawable.koran,title="হাদিস"){onSubMenuClick.invoke(11)}
+        val context= LocalView.current.context
+
+    ItemCard(icon=R.drawable.hadis,title="হাদিস"){onSubMenuClick.invoke(11)}
     ItemCard(icon=R.drawable.a_01_allah,title="আল্লাহ্‌র নাম"){onNameClick.invoke()}
-    ItemCard(icon=R.drawable.kaaba,title="কিবলা"){onCompassScreen.invoke()}
+    ItemCard(icon=R.drawable.qibla,title="কিবলা"){
+
+        val pm: PackageManager = context.packageManager
+        if (!pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS)) {
+            Toast.makeText(context, "Compass is unable to use", Toast.LENGTH_SHORT).show()
+            // This device does not have a compass, turn off the compass feature
+        }
+       else  onCompassScreen.invoke()}
 }
         Row(
         modifier =Modifier.fillMaxWidth(),
         ){
          ItemCard(icon=R.drawable.tasbih,title="তাজবি"){onTasbhiClick.invoke()}
-         ItemCard(icon=R.drawable.quran,title="কুরআন"){onQuranClick()}
-         ItemCard(icon=R.drawable.wudu,title="গোসল ও ওযু"){onSubMenuClick.invoke(1)}
+            ItemCard(icon=R.drawable.quran2,title="কুরআন"){onQuranClick()}
+         ItemCard(icon=R.drawable.oju,title="গোসল ও ওযু"){onSubMenuClick.invoke(1)}
     }
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.muslim,title="পাঁচ কালেমা সমূহ"){onSubMenuClick.invoke(2)}
-        ItemCard(icon=R.drawable.salat2,title="নামাজের দোয়া"){onSubMenuClick.invoke(3)}
-        ItemCard(icon=R.drawable.shalat,title="নামাজের নিয়ত"){onSubMenuClick.invoke(4)}
+        ItemCard(icon=R.drawable.kalema,title="পাঁচ কালেমা সমূহ"){onSubMenuClick.invoke(2)}
+        ItemCard(icon=R.drawable.dua,title="নামাজের দোয়া"){onSubMenuClick.invoke(3)}
+        ItemCard(icon=R.drawable.niyot,title="নামাজের নিয়ত"){onSubMenuClick.invoke(4)}
     }
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
         ItemCard(icon=R.drawable.mosque,title="জুম্মার নামাজ"){onSubMenuClick.invoke(5)}
         ItemCard(icon=R.drawable.iftar,title="রোযা ও তারাবী"){onSubMenuClick.invoke(6)}
-        ItemCard(icon=R.drawable.mosque2,title="দুই ইদ"){onSubMenuClick.invoke(7)}
+        ItemCard(icon=R.drawable.eid,title="দুই ইদ"){onSubMenuClick.invoke(7)}
     }
     Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.zakat,title="যাকাত"){onSubMenuClick.invoke(8)}
+        ItemCard(icon=R.drawable.jakat,title="যাকাত"){onSubMenuClick.invoke(8)}
         ItemCard(icon=R.drawable.hajj,title="হজ ও ওমরা"){onSubMenuClick.invoke(9)}
         ItemCard(icon=R.drawable.qurbani,title="কুরবানী ও আকিকা "){onSubMenuClick.invoke(7)}
     }
   Row(
         modifier =Modifier.fillMaxWidth(),
     ){
-        ItemCard(icon=R.drawable.zakat,title="ছোট সূরা"){onSortQuranClick.invoke()}
-        ItemCard(icon=R.drawable.hajj,title="সহীহ কুরআন শিক্ষা"){onSubMenuClick.invoke(12)}
-        ItemCard(icon=R.drawable.qurbani,title="যাকাত ক্যালকুলেটর"){onZakatClick.invoke()}
+        ItemCard(icon=R.drawable.sura,title="ছোট সূরা"){onSortQuranClick.invoke()}
+        ItemCard(icon=R.drawable.quranlearn,title="সহীহ কুরআন শিক্ষা"){onSubMenuClick.invoke(12)}
+        ItemCard(icon=R.drawable.calculator,title="যাকাত ক্যালকুলেটর"){onZakatClick.invoke()}
     }
 
 
@@ -383,7 +483,10 @@ fun RowScope.ItemCard(icon: Int, title: String,onItemClick:()->Unit) {
             .weight(0.333f),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
+        Icon(
+
+
+            tint=MaterialTheme.colorScheme.primary,
             modifier=Modifier.size(30.dp),
             painter = painterResource(id = icon), contentDescription = "icon")
         Text(
@@ -837,7 +940,8 @@ fun PreviewHomeScreen() {
         onNameClick = {},
         onCompassScreen ={},
         onTasbhiClick = {},
-        onZakatClick = {}
+        onZakatClick = {},
+        onDonationClick = {}
 
     )
 
