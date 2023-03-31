@@ -89,7 +89,7 @@ else {
 
         else
         {
-            stopSelf()
+          //  stopForeground(true)
         }
     }
                 return START_REDELIVER_INTENT
@@ -97,6 +97,7 @@ else {
     }
 
     override fun onCreate() {
+
 
         mp=MediaPlayer()
 

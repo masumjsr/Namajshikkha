@@ -43,8 +43,8 @@ android {
         applicationId "com.fsit.sohojnamaj"
         minSdk 23
         targetSdk 33
-        versionCode 19
-        versionName "2.0"
+        versionCode 20
+        versionName "2.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -105,19 +105,20 @@ dependencies {
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.2.9'
-    implementation 'com.google.firebase:firebase-analytics-ktx:20.1.2'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.3.6'
+    implementation 'com.google.firebase:firebase-analytics-ktx:21.2.1'
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.1.2'
     def composeBom = platform('androidx.compose:compose-bom:2023.01.00')
     implementation composeBom
     androidTestImplementation composeBom
 
     implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0'
-    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.activity:activity-compose:1.7.0'
     implementation "androidx.compose.ui:ui"
     implementation "androidx.compose.ui:ui-tooling-preview"
     implementation "androidx.navigation:navigation-compose"
-    implementation 'androidx.compose.material3:material3:1.1.0-alpha08'
+    implementation 'androidx.compose.material3:material3:1.1.0-beta01'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -125,10 +126,10 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling"
     debugImplementation "androidx.compose.ui:ui-test-manifest"
 
-    def nav_version = "2.6.0-alpha07"
+    def nav_version = "2.6.0-alpha08"
 
     implementation "androidx.navigation:navigation-compose:$nav_version"
-    implementation  'androidx.compose.material:material-icons-extended:1.4.0-rc01'
+    implementation  'androidx.compose.material:material-icons-extended:1.5.0-alpha01'
     implementation 'org.threeten:threetenbp:1.6.5'
 
 
@@ -142,13 +143,13 @@ dependencies {
     implementation 'androidx.hilt:hilt-work:1.0.0'
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.6.1'
 
 
 
 
-    def room_version = "2.5.0"
+    def room_version = "2.5.1"
 
     implementation "androidx.room:room-runtime:$room_version"
     // To use Kotlin annotation processing tool (kapt)
@@ -157,7 +158,7 @@ dependencies {
 
     implementation 'com.google.accompanist:accompanist-permissions:0.29.1-alpha'
 
-    implementation "androidx.navigation:navigation-compose:2.6.0-alpha07"
+    implementation "androidx.navigation:navigation-compose:2.6.0-alpha08"
 
 
     implementation(libs.androidx.dataStore.core)
@@ -166,12 +167,12 @@ dependencies {
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
     implementation "io.coil-kt:coil-compose:2.2.2"
 
-    androidTestImplementation "androidx.benchmark:benchmark-macro-junit4:1.2.0-alpha11"
-    implementation("androidx.profileinstaller:profileinstaller:1.3.0-rc01")
+    androidTestImplementation "androidx.benchmark:benchmark-macro-junit4:1.2.0-alpha12"
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
 
     //work manager
-    implementation("androidx.work:work-runtime-ktx:2.8.0")
-    implementation("androidx.work:work-rxjava2:2.8.0")
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.work:work-rxjava2:2.8.1")
 
     //easy pref
     implementation("com.pixplicity.easyprefs:EasyPrefs:1.10.0")
@@ -191,10 +192,10 @@ dependencies {
 
     implementation 'androidx.tracing:tracing:1.1.0'
 
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.1"
 
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
-    implementation 'androidx.work:work-runtime-ktx:2.8.0'
+    implementation 'androidx.work:work-runtime-ktx:2.8.1'
     implementation  'androidx.media:media:1.6.0'
 
     implementation 'cat.ereza:customactivityoncrash:2.4.0'
@@ -218,7 +219,9 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
     implementation "com.google.accompanist:accompanist-pager:0.23.0"
 
-    implementation 'androidx.activity:activity-compose:1.5.0'
+    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    implementation 'com.google.android.gms:play-services-ads:22.0.0'
 }
 kapt {
     correctErrorTypes true

@@ -20,7 +20,7 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = lightSeaGreen,
+    primary = blightSeaBlue,
 
     onBackground = greyText,
 

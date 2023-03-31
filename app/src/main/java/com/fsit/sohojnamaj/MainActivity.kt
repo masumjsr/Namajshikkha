@@ -31,9 +31,14 @@ import com.fsit.sohojnamaj.data.Prefs
 import com.fsit.sohojnamaj.database.dao.NameDao
 import com.fsit.sohojnamaj.ui.navigation.AppNavHost
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -45,6 +50,9 @@ import com.fsit.sohojnamaj.ui.viewModel.MainActivityViewModel
 import com.fsit.sohojnamaj.util.praytimes.Praytime
 import com.fsit.sohojnamaj.util.praytimes.SoundService
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -88,10 +96,11 @@ class MainActivity : ComponentActivity() {
         volumeControlStream = AudioManager.STREAM_ALARM
         Praytime.configureForegroundService(this)
         if(intent.getBooleanExtra("stop",false)){
-            val service =Intent(this,SoundService::class.java)
+            Log.i("123321", "onCreate: stoping service")
+           /* val service =Intent(this,SoundService::class.java)
                 stopService(
                     service
-                )
+                )*/
 
 
         }
@@ -209,10 +218,25 @@ fun MainContent(
     appState: AppState = rememberAppState(),
 
     ) {
-    AppNavHost(
-        navController = appState.navController,
-        onBackClick = appState::onBackClick
-    )
+    Column(modifier = Modifier) {
+        AppNavHost(
+            navController = appState.navController,
+            onBackClick = appState::onBackClick,
+            modifier = Modifier.weight(1f)
+        )
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth().padding(top = 5.dp),
+            factory = { context ->
+                AdView(context).apply {
+                    setAdSize(AdSize.BANNER)
+                    // Add your adUnitID, this is for testing.
+                    adUnitId = "ca-app-pub-3940256099942544/6300978111"
+                    loadAd(AdRequest.Builder().build())
+                }
+            }
+        )
+    }
 }
 
 val mChannelId = "com.fsit.sohojnamaj.adzan"

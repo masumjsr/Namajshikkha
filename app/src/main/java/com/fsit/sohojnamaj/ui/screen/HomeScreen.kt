@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fsit.sohojnamaj.MainActivity
 import com.fsit.sohojnamaj.R
 import com.fsit.sohojnamaj.model.Prayer
 import com.fsit.sohojnamaj.model.PrayerRange
@@ -55,6 +56,12 @@ import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
@@ -66,6 +73,50 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
+var mInterstitialAd: InterstitialAd? = null
+
+fun loadInterstitial(context: Context) {
+    InterstitialAd.load(
+        context,
+        "ca-app-pub-3940256099942544/1033173712", //Change this with your own AdUnitID!
+        AdRequest.Builder().build(),
+        object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                mInterstitialAd = null
+            }
+
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                mInterstitialAd = interstitialAd
+            }
+        }
+    )
+}
+
+fun showInterstitial(context: Context, onAdDismissed: () -> Unit) {
+    val activity=context as MainActivity
+
+    if (mInterstitialAd != null) {
+        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdFailedToShowFullScreenContent(e: AdError) {
+                mInterstitialAd = null
+            }
+
+            override fun onAdDismissedFullScreenContent() {
+                mInterstitialAd = null
+
+                loadInterstitial(context)
+                onAdDismissed()
+            }
+        }
+        mInterstitialAd?.show(activity)
+    }
+    else onAdDismissed.invoke()
+}
+
+fun removeInterstitial() {
+    mInterstitialAd?.fullScreenContentCallback = null
+    mInterstitialAd = null
+}
 @Composable
 fun HomeScreenRoute(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -119,6 +170,8 @@ fun HomeScreen(
     onZakatClick: () -> Unit,
     onDonationClick: () -> Unit,
 ) {
+    val context= LocalView.current.context
+    loadInterstitial(context)
     Scaffold(
         topBar = {
             TopAppBar (
@@ -213,13 +266,13 @@ fun HomeScreen(
                 DonationSlide(onDonationClick=onDonationClick)
                 Sahari(current)
                 ItemList(
-                    onQuranClick=onQuranClick,
-                    onSortQuranClick=onSortQuranClick,
-                    onSubMenuClick=onSubMenuClick,
-                    onNameClick=onNameClick,
-                    onCompassScreen=onCompassScreen,
-                    onTasbhiClick=onTasbhiClick,
-                    onZakatClick=onZakatClick
+                    onQuranClick={ showInterstitial(context){onQuranClick.invoke()}},
+                    onSortQuranClick={ showInterstitial(context){onSortQuranClick.invoke()}},
+                    onSubMenuClick={ showInterstitial(context){onSubMenuClick.invoke(it)} },
+                    onNameClick={ showInterstitial(context){onNameClick.invoke()}},
+                    onCompassScreen={ showInterstitial(context){onCompassScreen.invoke()}},
+                    onTasbhiClick={ showInterstitial(context){onTasbhiClick.invoke()}},
+                    onZakatClick={ showInterstitial(context){onZakatClick.invoke()}},
                 )
                 Prayers(current)
                 Forbidden(current)
@@ -281,7 +334,9 @@ fun DonationSlide(onDonationClick: () -> Unit) {
         modifier = Modifier.padding(5.dp)
 
     ) {
-        Row(modifier =Modifier.padding(8.dp).fillMaxWidth()){
+        Row(modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()){
             Image(
                 modifier= Modifier
                     .size(48.dp)
@@ -308,7 +363,7 @@ fun DonationSlide(onDonationClick: () -> Unit) {
 fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
 
 
-    val locationRequest=LocationRequest.Builder(Priority.PRIORITY_LOW_POWER, Long.MAX_VALUE)
+    val locationRequest=LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, Long.MAX_VALUE)
         .setWaitForAccurateLocation(false)
         .build()
 
@@ -341,7 +396,7 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
     ) { activityResult ->
         if (activityResult.resultCode == Activity.RESULT_OK) {
 
-            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_LOW_POWER, object : CancellationToken() {
+            fusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, object : CancellationToken() {
                 override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
 
                 override fun isCancellationRequested() = false
@@ -350,10 +405,14 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
                     if (location == null)
                         Toast.makeText(context, "Cannot get location.", Toast.LENGTH_SHORT).show()
                     else {
-                        onLocationFound.invoke(LatLng(location.latitude,location.longitude))
+                        Log.i("123321", "HandleLocation: location founded")
 
+                        onLocationFound.invoke(LatLng(location.latitude,location.longitude))
                     }
 
+                }
+                .addOnFailureListener {
+                    Log.i("123321", "HandleLocation: failure")
                 }
 
         }
@@ -364,7 +423,7 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
         // location requests here.
         // ...
 
-        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_LOW_POWER, object : CancellationToken() {
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, object : CancellationToken() {
             override fun onCanceledRequested(p0: OnTokenCanceledListener) = CancellationTokenSource().token
 
             override fun isCancellationRequested() = false
@@ -392,11 +451,14 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
                     IntentSenderRequest.Builder(exception.resolution).build()
                 )
             } catch (sendEx: IntentSender.SendIntentException) {
-                Log.i("123321", "HandleLocation: ${sendEx.message}")
+                Log.i("123321", "HandleLocation:401: ${sendEx.message}")
                 // Ignore the error.
             }
         }
-        Log.i("123321", "HandleLocation: ${exception.message}")
+        else{
+
+            Log.i("123321", "HandleLocation: ${exception.message}")
+        }
     }
 
 
@@ -573,7 +635,7 @@ private fun Sahari(current: Prayer?) {
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth(),
-                text = "আগামীকালের সময়সূচী",
+                text = "আগামীকালের সেহেরী এবং ইফতারের সময়সূচী",
                 style = MaterialTheme.typography.titleSmall,
                 textAlign = TextAlign.Center,
                 fontFamily = kalPurush
@@ -586,61 +648,57 @@ private fun Sahari(current: Prayer?) {
         ) {
 
 
+
                 Column(
-                    modifier = Modifier.weight(0.33f)
+                    modifier = Modifier.weight(0.5f)
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = "সাহারী শেষ", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        text = "সাহারী শেষ", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,fontFamily = kalPurush)
 
                     Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        text = current?.nextSahari ?: "-",
-                        style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        text = "ইফতার", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, fontFamily = kalPurush)
+                    Text(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        text = "পরবর্তী ${if (current?.isIfterOver == true) "সাহারি" else "ইফতার"}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
                         fontFamily = kalPurush
                     )
+                    PulsatingCircles()
 
                 }
            Column (
-                modifier = Modifier.weight(0.33f)
+                modifier = Modifier.weight(0.5f)
             ) {
 
+
                Text(
-                   modifier = Modifier.fillMaxWidth(),
-                   text = "ইফতার", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
-                   fontFamily = kalPurush)
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(8.dp),
+                   text = current?.nextSahari ?: "-",
+                   style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                   fontFamily = kalPurush
+               )
                  Text(
                      modifier = Modifier
                          .fillMaxWidth()
                          .padding(8.dp),
                      text = current?.nextIfter ?: "-", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
                      fontFamily = kalPurush)
-
-
-            }
-            Column(
-                modifier = Modifier.weight(0.33f)
-            ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                text = "পরবর্তী ${if (current?.isIfterOver == true) "সাহারি" else "ইফতার"}",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                    fontFamily = kalPurush
-            )
-
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    text = current?.nextTimeLeft ?: "-",
-                    style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
-                    fontFamily = kalPurush
-                )
+               Text(
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(8.dp),
+                   text = current?.nextTimeLeft ?: "-",
+                   style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                   fontFamily = kalPurush
+               )
 
             }
+
         }
     }
 }
@@ -814,11 +872,8 @@ private fun CurrentWaqt(current: Prayer?) {
             .padding(top = 10.dp)
             .fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = if (current?.forbiddenRange == true) MaterialTheme.colorScheme.error else Color(
-                54,
-                168,
-                160
-            ),
+            containerColor = if (current?.forbiddenRange == true) MaterialTheme.colorScheme.error else
+                MaterialTheme.colorScheme.primary,
             contentColor = Color.White
         )
     ) {

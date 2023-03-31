@@ -280,7 +280,7 @@ fun SuraDetailsScreen(
                             .padding(),
                         border = BorderStroke(1.dp, color = Color(229, 229, 229)),
                         colors = CardDefaults.cardColors(
-                            containerColor = Color.White
+
                         )
 
                     ) {

@@ -151,10 +151,9 @@ fun TypeTwoScreen(id:Int,typeTwoItem: List<TypeTwoItem>, title: String, onBackCl
                             onClick = { /*TODO*/ },
                             modifier = Modifier
                                 .padding(top = 12.dp)
-                                .background(Color.White)
                                 .fillMaxWidth(),
                             border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.primary),
-                            colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
+
 
                         ) {
                             it.arabic?.let { it1 ->
@@ -190,10 +189,8 @@ fun TypeTwoScreen(id:Int,typeTwoItem: List<TypeTwoItem>, title: String, onBackCl
                             onClick = { /*TODO*/ },
                             modifier = Modifier
                                 .padding(top = 12.dp)
-                                .background(Color.White)
                                 .fillMaxWidth(),
                             border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.primary),
-                            colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
 
                         ) {
                             it.bengali?.let { it1 ->
@@ -229,10 +226,8 @@ fun TypeTwoScreen(id:Int,typeTwoItem: List<TypeTwoItem>, title: String, onBackCl
                             onClick = { /*TODO*/ },
                             modifier = Modifier
                                 .padding(top = 12.dp)
-                                .background(Color.White)
                                 .fillMaxWidth(),
                             border = BorderStroke(1.dp, color = MaterialTheme.colorScheme.primary),
-                            colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
                         ) {
                             it.meaning?.let { it1 ->
                                 Text(
@@ -269,13 +264,11 @@ fun TypeTwoScreen(id:Int,typeTwoItem: List<TypeTwoItem>, title: String, onBackCl
                                 onClick = { /*TODO*/ },
                                 modifier = Modifier
                                     .padding(top = 12.dp)
-                                    .background(Color.White)
                                     .fillMaxWidth(),
                                 border = BorderStroke(
                                     1.dp,
                                     color = MaterialTheme.colorScheme.primary
                                 ),
-                                colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
 
                             ) {
 

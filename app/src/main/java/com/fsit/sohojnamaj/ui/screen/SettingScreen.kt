@@ -80,7 +80,7 @@ fun SettingScreen(
                 ThemeSetting(setting,updateTheme)
                 HizriAdjustment(offset = setting.hijri, updateOffset =updateHizri )
 
-                Notification(setting, updateSound)
+               // Notification(setting, updateSound)
 
 
 

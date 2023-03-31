@@ -9,7 +9,10 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import cat.ereza.customactivityoncrash.config.CaocConfig
 import com.fsit.sohojnamaj.util.LocaleProvider.Companion.init
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.RequestConfiguration
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.messaging.FirebaseMessaging
 import com.onesignal.OneSignal
 import com.pixplicity.easyprefs.library.Prefs
 import com.tanodxyz.gdownload.GDownload
@@ -31,6 +34,35 @@ class MyApp : Application(){
 
 
         notificationManager?.createNotificationChannel(mChannel)
+
+        val channelId = "KaziTV"
+        val notificationManager = getSystemService(
+            NOTIFICATION_SERVICE
+        ) as NotificationManager
+        // Check if the Android Version is greater than Oreo
+        // Check if the Android Version is greater than Oreo
+        if (Build.VERSION.SDK_INT
+            >= Build.VERSION_CODES.O
+        ) {
+            val notificationChannel = NotificationChannel(
+                channelId, channelId,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                notificationChannel.setAllowBubbles(true)
+            }
+            notificationChannel.enableLights(true)
+            notificationChannel.setShowBadge(true)
+            notificationChannel.importance = NotificationManager.IMPORTANCE_HIGH
+            notificationChannel.enableLights(true)
+            notificationManager.createNotificationChannel(
+                notificationChannel
+            )
+        }
+        try {
+            FirebaseMessaging.getInstance().subscribeToTopic("all")
+        } catch (_: Exception) {
+        }
     }
     override fun onCreate() {
         Prefs.Builder()
@@ -39,6 +71,12 @@ class MyApp : Application(){
             .setPrefsName(packageName)
             .setUseDefaultSharedPreference(true)
             .build()
+
+        MobileAds.initialize(this)
+//Optional if you want to add test device
+        val configuration = RequestConfiguration.Builder()
+            .build()
+        MobileAds.setRequestConfiguration(configuration)
 
         init(this)
         CaocConfig.Builder.create()

@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,6 +30,8 @@ fun SubCategoryScreenRoute(
     onNuktaScreen: () -> Unit
 )
 {
+    val context = LocalView.current.context
+    loadInterstitial(context)
 
     val subCategory by viewModel.subcategoryList.collectAsStateWithLifecycle()
     val title= viewModel.title
@@ -37,11 +40,11 @@ fun SubCategoryScreenRoute(
         id=id,
         title=title,
         subCategory=subCategory,
-        onTypeOneClick=onTypeOneClick,
-        onTypeTwoClick=onTypeTwoClick,
+        onTypeOneClick={ i,s->showInterstitial(context){onTypeOneClick.invoke(i,s)}},
+        onTypeTwoClick={i,s-> showInterstitial(context){onTypeTwoClick.invoke(i,s)}},
         onBackClick=onBackClick,
-        onAlifBaaScreen=onAlifBaaScreen,
-        onNuktaScreen=onNuktaScreen
+        onAlifBaaScreen={ showInterstitial(context){onAlifBaaScreen.invoke()}},
+        onNuktaScreen={ showInterstitial(context){onNuktaScreen.invoke()}}
     )
 }
 

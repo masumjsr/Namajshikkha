@@ -29,8 +29,8 @@ class Praytime {
             }
         }
         fun schedule(context:Context?,prayerPreferenceModel: PrayerPreferenceModel,userPreferences: UserData,source:String){
-            Log.i("123321", "schedule: scheduing from $source")
-           context?.apply{
+
+         /*  context?.apply{
                // PraytimeWidget.update(this)
                // Khatam.schedule(this)
                // DailyReminder.schedule(this)
@@ -100,7 +100,7 @@ class Praytime {
                        soundModel.fajr
                    )
                }
-            }
+            }*/
         }
 
         private fun Context.configureAdzanScheduler(triggerTime: Long, requestCode: Int, prayer: PraytimeType, ringType: Int) {
