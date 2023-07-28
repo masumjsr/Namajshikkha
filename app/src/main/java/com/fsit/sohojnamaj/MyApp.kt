@@ -1,13 +1,16 @@
 package com.fsit.sohojnamaj
 
+import android.app.Activity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import cat.ereza.customactivityoncrash.config.CaocConfig
+import com.fsit.sohojnamaj.util.ADMOB_APP_OPEN_ID
 import com.fsit.sohojnamaj.util.LocaleProvider.Companion.init
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
@@ -17,10 +20,16 @@ import com.onesignal.OneSignal
 import com.pixplicity.easyprefs.library.Prefs
 import com.tanodxyz.gdownload.GDownload
 import dagger.hilt.android.HiltAndroidApp
+import java.util.*
 
 
 @HiltAndroidApp
 class MyApp : Application(){
+
+
+    private var currentActivity: Activity? = null
+
+    private  val LOG_TAG = "123321"
     val mChannelId = "com.fsit.sohojnamaj.adzan"
     private var notificationManager: NotificationManager? = null
     val mChannelNameAdzan = "Adzan"
@@ -72,10 +81,17 @@ class MyApp : Application(){
             .setUseDefaultSharedPreference(true)
             .build()
 
-        MobileAds.initialize(this)
+
+
+        //  RequestConfiguration.Builder().setTestDeviceIds(Arrays.asList("0B7CAF51CFF07FF147EE0C730E31AC21"))
+
 //Optional if you want to add test device
-        val configuration = RequestConfiguration.Builder()
-            .build()
+       val configuration = RequestConfiguration.Builder().setTestDeviceIds(listOf("0B7CAF51CFF07FF147EE0C730E31AC21"))
+           .build()
+
+
+        Log.i("123321", "onCreate: ${configuration.testDeviceIds}")
+        
         MobileAds.setRequestConfiguration(configuration)
 
         init(this)
@@ -105,6 +121,19 @@ class MyApp : Application(){
         FirebaseAnalytics.getInstance(this);
 
         super.onCreate()
+      //  registerActivityLifecycleCallbacks(this)
+//
+        // Log the Mobile Ads SDK version.
+        Log.d(LOG_TAG, "Google Mobile Ads SDK Version: " + MobileAds.getVersion())
+
+        MobileAds.initialize(this) {}
+        AppOpenAdManager(this, ADMOB_APP_OPEN_ID)
+      //  ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+      //  appOpenAdManager = AppOpenAdManager()
 
     }
+
+
+
 }
+

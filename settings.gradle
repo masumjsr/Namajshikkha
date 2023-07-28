@@ -3,6 +3,8 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven { url 'https://artifacts.applovin.com/android' }
+
     }
 }
 dependencyResolutionManagement {
@@ -11,7 +13,9 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        maven { url 'https://artifacts.applovin.com/android' }
     }
 }
 rootProject.name = "Namaj shikkha"
 include ':app'
+include ':nativetemplates'

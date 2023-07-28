@@ -9,5 +9,8 @@
     <string name="error_details">Error Details</string>
     <string name="unknown_exception">UnKnown exception</string>
     <string name="close_app">Close App</string>
+    <string name="in_app_update_compose_update_complete_title">Update Complete</string>
+    <string name="in_app_update_compose_update_complete_body">Update Complete\n</string>
+    <string name="in_app_update_compose_update_complete_button">Install</string>
 
 </resources>

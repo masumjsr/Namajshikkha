@@ -10,6 +10,10 @@ plugins {
     id 'com.onesignal.androidsdk.onesignal-gradle-plugin'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'applovin-quality-service'
+}
+applovin {
+    apiKey "EeG5hgUqJPXG6zyUfH8DxRlCXI8dy_v8emhdZM--Sm9ouTrW651bgZ3mA6Rls4LZ2xmlXQGV-v4qutz4awTeVD"
 }
 protobuf {
     protoc {
@@ -33,7 +37,7 @@ protobuf {
 }
 android {
     namespace 'com.fsit.sohojnamaj'
-    compileSdk 33
+    compileSdk 34
 
 
     lint {
@@ -42,9 +46,9 @@ android {
     defaultConfig {
         applicationId "com.fsit.sohojnamaj"
         minSdk 23
-        targetSdk 33
-        versionCode 20
-        versionName "2.1"
+        targetSdk 34
+        versionCode 26
+        versionName "2.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -105,20 +109,20 @@ dependencies {
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.3.6'
-    implementation 'com.google.firebase:firebase-analytics-ktx:21.2.1'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.3.7'
+    implementation 'com.google.firebase:firebase-analytics-ktx:21.3.0'
     implementation 'com.google.firebase:firebase-messaging-ktx:23.1.2'
     def composeBom = platform('androidx.compose:compose-bom:2023.01.00')
     implementation composeBom
     androidTestImplementation composeBom
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
-    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     implementation "androidx.compose.ui:ui"
     implementation "androidx.compose.ui:ui-tooling-preview"
     implementation "androidx.navigation:navigation-compose"
-    implementation 'androidx.compose.material3:material3:1.1.0-beta01'
+    implementation 'androidx.compose.material3:material3:1.2.0-alpha02'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -126,10 +130,8 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling"
     debugImplementation "androidx.compose.ui:ui-test-manifest"
 
-    def nav_version = "2.6.0-alpha08"
-
-    implementation "androidx.navigation:navigation-compose:$nav_version"
-    implementation  'androidx.compose.material:material-icons-extended:1.5.0-alpha01'
+    implementation "androidx.navigation:navigation-compose:2.7.0-beta01"
+    implementation  'androidx.compose.material:material-icons-extended:1.5.0-beta02'
     implementation 'org.threeten:threetenbp:1.6.5'
 
 
@@ -158,17 +160,17 @@ dependencies {
 
     implementation 'com.google.accompanist:accompanist-permissions:0.29.1-alpha'
 
-    implementation "androidx.navigation:navigation-compose:2.6.0-alpha08"
+    implementation "androidx.navigation:navigation-compose:2.7.0-beta01"
 
 
     implementation(libs.androidx.dataStore.core)
     implementation(libs.protobuf.kotlin.lite)
-    implementation 'androidx.core:core-splashscreen:1.0.0'
+    implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.28.0"
-    implementation "io.coil-kt:coil-compose:2.2.2"
+    implementation "io.coil-kt:coil-compose:2.3.0"
 
-    androidTestImplementation "androidx.benchmark:benchmark-macro-junit4:1.2.0-alpha12"
-    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
+    androidTestImplementation "androidx.benchmark:benchmark-macro-junit4:1.2.0-alpha15"
+    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
 
     //work manager
     implementation("androidx.work:work-runtime-ktx:2.8.1")
@@ -200,7 +202,7 @@ dependencies {
 
     implementation 'cat.ereza:customactivityoncrash:2.4.0'
     implementation "com.google.android.gms:play-services-maps:18.1.0"
-    implementation "com.google.code.gson:gson:2.10"
+    implementation "com.google.code.gson:gson:2.10.1"
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.gms:play-services-maps:18.1.0")
@@ -208,20 +210,27 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
     implementation("se.warting.in-app-update:in-app-update-compose:0.0.17")
 
-    implementation "com.github.tanoDxyz:GDownload:1.0"
+    implementation "com.github.tanoDxyz:GDownload:1.1"
     implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
-    //implementation 'com.github.derysudrajat:compass-qibla:1.0.0'
 
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.5'
-    implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.5'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.5'
-    implementation "androidx.activity:activity-ktx:1.7.0"
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.7'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.7'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.7'
+    implementation "androidx.activity:activity-ktx:1.7.2"
+    implementation 'androidx.navigation:navigation-ui-ktx:2.6.0'
     implementation "com.google.accompanist:accompanist-pager:0.23.0"
 
-    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation 'androidx.activity:activity-compose:1.7.2'
     implementation 'com.github.bumptech.glide:glide:4.15.1'
-    implementation 'com.google.android.gms:play-services-ads:22.0.0'
+    implementation 'com.google.android.gms:play-services-ads:22.1.0'
+
+    implementation 'com.google.accompanist:accompanist-permissions:0.29.1-alpha'
+    implementation project(':nativetemplates')
+    implementation 'com.applovin:applovin-sdk:11.10.1'
+    implementation 'com.google.ads.mediation:applovin:11.10.1.0'
+    implementation 'com.applovin.mediation:google-adapter:+'
+
+
 }
 kapt {
     correctErrorTypes true

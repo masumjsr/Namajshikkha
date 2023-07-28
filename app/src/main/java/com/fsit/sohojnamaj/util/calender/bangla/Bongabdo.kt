@@ -1,5 +1,6 @@
 package com.fsit.sohojnamaj.util.calender.bangla
 
+import android.util.Log
 import androidx.compose.ui.text.intl.Locale
 import com.aminography.primecalendar.hijri.HijriCalendarUtils
 import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
@@ -39,16 +40,17 @@ class Bongabdo {
           totalDaysInMonth[10] = 31;
         } */
 
+       Log.i("123321", "toBanglaDate: gMonth is $gMonth")
         val banglaYear =
         if((gMonth < 3 || (gMonth == 3 && gDay < 14)))  gYear - 594 else gYear - 593;
 
         val epochYear =
-        if((gMonth < 4 || (gMonth == 4 && gDay < 14)))  gYear - 1 else gYear;
+        if((gMonth < 3 || (gMonth == 3 && gDay < 14)))  gYear - 1 else gYear;
 
        val banglaCalendar=Calendar.getInstance()
            banglaCalendar.set(gYear,gMonth,gDay)
        val epochCalendar=Calendar.getInstance()
-           epochCalendar.set(epochYear,4,13)
+           epochCalendar.set(epochYear,3,13)
        val diff =banglaCalendar.timeInMillis-epochCalendar.timeInMillis
 
 
@@ -58,7 +60,8 @@ class Bongabdo {
         var banglaMonthIndex = 0;
 
 
-       for (i in 1..12){
+       Log.i("123321", "toBanglaDate: difference is $difference")
+       for (i in 0..11){
            if (difference <= totalDaysInMonth[i]) {
                banglaMonthIndex = i;
                break
@@ -74,21 +77,22 @@ class Bongabdo {
 
         var banglaDate = difference;
 
-        var banglaSeason = banglaSeasons[floor((banglaMonthIndex / 2.0)).toInt()];
 
         var banglaWeekDay = banglaCalendar.get(Calendar.DAY_OF_WEEK);
        print(banglaWeekDay)
+
+       Log.i("123321", "toBanglaDate: month index is $banglaMonthIndex")
 
        return when (locale.language) {
            HijriCalendar.DEFAULT_LOCALE -> {
                bDate(
                    translateNumbersToBangla(banglaYear.toString()), banglaMonths[banglaMonthIndex], translateNumbersToBangla(banglaDate.toString()),
-                   banglaWeekDays[banglaWeekDay]!!, banglaSeason);
+                   banglaWeekDays[banglaWeekDay]!!, "");
            }
            else -> {
                bDate(
                   banglaYear.toString(), banglaMonthsEn[banglaMonthIndex], banglaDate.toString(),
-                   banglaWeekDays[banglaWeekDay]!!, banglaSeason);
+                   banglaWeekDays[banglaWeekDay]!!, "");
            }
        }
 

@@ -19,6 +19,8 @@ import com.fsit.sohojnamaj.model.dua.SubCategory
 import com.fsit.sohojnamaj.model.dua.sampleSubCategory
 import com.fsit.sohojnamaj.ui.theme.kalPurush
 import com.fsit.sohojnamaj.ui.viewModel.SubCategoryViewModel
+import com.fsit.sohojnamaj.util.loadInterstitial
+import com.fsit.sohojnamaj.util.showInterstitial
 
 @Composable
 fun SubCategoryScreenRoute(

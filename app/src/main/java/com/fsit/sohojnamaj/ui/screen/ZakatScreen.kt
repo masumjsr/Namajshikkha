@@ -1,6 +1,8 @@
 package com.fsit.sohojnamaj.ui.screen
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,6 +64,7 @@ fun ZakatScreen(
     totalWealth: Double,
 
     ) {
+    val context : Context = LocalView.current.context
 
     var showDialog by remember {
         mutableStateOf(false)
@@ -98,9 +102,16 @@ fun ZakatScreen(
                         },
                         value = goldPrice,
                         onValueChange = { text ->
-                            goldPrice = if (text.isEmpty()) "" else {
-                                text.toDouble()
-                            }.toString()
+                            goldPrice = if (text.isEmpty()) ""
+                            else {
+                                try {
+                                    text.toDouble().toString()
+                                } catch (e: Exception) {
+
+                                    Toast.makeText(context, "Amount must be in English Number", Toast.LENGTH_SHORT).show()
+                                    ""
+                                }
+                            }
                         },
                         suffix = { Text(text = "টাকা") }
                     )
@@ -146,18 +157,20 @@ fun ZakatScreen(
 
                 )
         }
-    ) {
+    ) { it ->
 
 
-        
         var total by remember{ mutableStateOf(0.0) }
 
         list.forEach {
             if(it.amount.isNotEmpty()){
 
 
+                try {
+                    if (it.isAdding)total+=it.amount.toDouble() else  total-=it.amount.toDouble()
+                } catch (e: Exception) {
 
-                        if (it.isAdding)total+=it.amount.toDouble() else  total-=it.amount.toDouble()
+                }
 
 
             }
@@ -216,9 +229,15 @@ fun ZakatScreen(
                         fontFamily = kalPurush,
                         style = MaterialTheme.typography.titleLarge,
                     )
+
+                    val text= try {
+                        String.format("%.1f",goldPrice.toDouble()*52.50)
+                    } catch (e: Exception) {
+                        "0.0"
+                    }
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = String.format("%.1f",goldPrice.toDouble()*52.50),
+                        text = text,
                         color = Color.White,
                         fontFamily = kalPurush,
                         style = MaterialTheme.typography.titleLarge,
@@ -266,9 +285,14 @@ fun ZakatScreen(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 val zakatAmount =(2.5/100.0) * imageList.values.sum()
+                val text= try {
+                    String.format("%.1f",if(zakatAmount>goldPrice.toDouble())zakatAmount else 0.0)
+                } catch (e: Exception) {
+                    "0.0"
+                }
                 Text(
                     modifier = Modifier.padding(8.dp),
-                    text = String.format("%.1f",if(zakatAmount>goldPrice.toDouble())zakatAmount else 0.0),
+                    text = text,
                     color = Color.White,
                     fontFamily = kalPurush,
                     style = MaterialTheme.typography.titleLarge,

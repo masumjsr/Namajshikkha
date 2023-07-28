@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:ads="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:maxads="http://schemas.applovin.com/android/1.0"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.applovin.mediation.ads.MaxAdView
+        android:id="@+id/ad_view"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/banner_height"
+        android:background="@color/ad_bg"
+        maxads:adUnitId="baccab6cc91dabeb" />
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/my_composable"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

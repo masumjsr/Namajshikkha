@@ -38,6 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.applovin.mediation.MaxAd
+import com.applovin.mediation.MaxAdListener
+import com.applovin.mediation.MaxError
+import com.applovin.mediation.ads.MaxInterstitialAd
 import com.fsit.sohojnamaj.MainActivity
 import com.fsit.sohojnamaj.R
 import com.fsit.sohojnamaj.model.Prayer
@@ -50,18 +54,14 @@ import com.fsit.sohojnamaj.util.calender.bangla.Bongabdo
 import com.fsit.sohojnamaj.util.calender.primecalendar.civil.CivilCalendar
 import com.fsit.sohojnamaj.util.calender.primecalendar.hijri.HijriCalendar
 import com.fsit.sohojnamaj.util.dateUtil.toTimeFormat
+import com.fsit.sohojnamaj.util.loadInterstitial
+import com.fsit.sohojnamaj.util.showInterstitial
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.android.gms.ads.AdError
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.FullScreenContentCallback
-import com.google.android.gms.ads.LoadAdError
-import com.google.android.gms.ads.interstitial.InterstitialAd
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
@@ -73,50 +73,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 
-var mInterstitialAd: InterstitialAd? = null
 
-fun loadInterstitial(context: Context) {
-    InterstitialAd.load(
-        context,
-        "ca-app-pub-3940256099942544/1033173712", //Change this with your own AdUnitID!
-        AdRequest.Builder().build(),
-        object : InterstitialAdLoadCallback() {
-            override fun onAdFailedToLoad(adError: LoadAdError) {
-                mInterstitialAd = null
-            }
 
-            override fun onAdLoaded(interstitialAd: InterstitialAd) {
-                mInterstitialAd = interstitialAd
-            }
-        }
-    )
-}
 
-fun showInterstitial(context: Context, onAdDismissed: () -> Unit) {
-    val activity=context as MainActivity
-
-    if (mInterstitialAd != null) {
-        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
-            override fun onAdFailedToShowFullScreenContent(e: AdError) {
-                mInterstitialAd = null
-            }
-
-            override fun onAdDismissedFullScreenContent() {
-                mInterstitialAd = null
-
-                loadInterstitial(context)
-                onAdDismissed()
-            }
-        }
-        mInterstitialAd?.show(activity)
-    }
-    else onAdDismissed.invoke()
-}
-
-fun removeInterstitial() {
-    mInterstitialAd?.fullScreenContentCallback = null
-    mInterstitialAd = null
-}
 @Composable
 fun HomeScreenRoute(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -128,7 +87,7 @@ fun HomeScreenRoute(
     onNameClick: () -> Unit,
     onCompassScreen: () -> Unit,
     onZakatClick: () -> Unit,
-    onDonationClick: () -> Unit
+    onDonationClick: () -> Unit,
 ) {
     val currentWaqt by viewModel.currentWaqt.collectAsStateWithLifecycle()
     val currentLocation by viewModel.locationData.collectAsStateWithLifecycle()
@@ -233,6 +192,7 @@ fun HomeScreen(
 
 
       if(isDismissedDialog) {
+          Log.i("123321", "HomeScreen: dismissed dialog")
           if(permissionState.status.isGranted){
              // buttonText="Searching"
 
@@ -253,6 +213,7 @@ fun HomeScreen(
                 DateSection(buttonText,offset){
 
                     if (permissionState.status.isGranted){
+                        isDismissedDialog=false
                         isDismissedDialog=true
                     }
                     else {
@@ -284,7 +245,8 @@ fun HomeScreen(
 
         }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class,
+@OptIn(
+    ExperimentalMaterial3Api::class,
     ExperimentalPagerApi::class
 )
 @Composable
@@ -331,7 +293,7 @@ fun DonationSlide(onDonationClick: () -> Unit) {
                   }
                 else onDonationClick.invoke()
         },
-        modifier = Modifier.padding(5.dp)
+        modifier = Modifier.padding(top=8.dp)
 
     ) {
         Row(modifier = Modifier
@@ -447,9 +409,11 @@ fun HandleLocation(context: Context,onLocationFound:(LatLng)->Unit) {
             try {
                 // Show the dialog by calling startResolutionForResult(),
                 // and check the result in onActivityResult().
-                settingResultRequest.launch(
-                    IntentSenderRequest.Builder(exception.resolution).build()
-                )
+             if(settingResultRequest!=null){
+                 settingResultRequest.launch(
+                     IntentSenderRequest.Builder(exception.resolution).build()
+                 )
+             }
             } catch (sendEx: IntentSender.SendIntentException) {
                 Log.i("123321", "HandleLocation:401: ${sendEx.message}")
                 // Ignore the error.
@@ -478,7 +442,7 @@ fun ItemList(
     onNameClick: () -> Unit,
     onCompassScreen: () -> Unit,
     onTasbhiClick: () -> Unit,
-    onZakatClick: () -> Unit
+    onZakatClick: () -> Unit,
 ) {
     Row(
     modifier =Modifier.fillMaxWidth(),
@@ -491,7 +455,8 @@ fun ItemList(
 
         val pm: PackageManager = context.packageManager
         if (!pm.hasSystemFeature(PackageManager.FEATURE_SENSOR_COMPASS)) {
-            Toast.makeText(context, "Compass is unable to use", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "কম্পাস সেনসর নেই \n" +
+                    "দুখিঃত , আপনার মোবাইলে কম্পাস সেনসর না থাকার কারনে এই ফিচারটি ব্যবহার করা সম্ভব হচ্ছে না ", Toast.LENGTH_SHORT).show()
             // This device does not have a compass, turn off the compass feature
         }
        else  onCompassScreen.invoke()}
@@ -626,7 +591,7 @@ private fun Sahari(current: Prayer?) {
             .padding(top = 10.dp)
             .fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = Color(99, 115, 128),
+            containerColor = Color(51, 150, 30),
             contentColor = Color.White
         )
     ) {
@@ -643,7 +608,7 @@ private fun Sahari(current: Prayer?) {
         }
         Row(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(0.dp)
                 .fillMaxWidth()
         ) {
 
@@ -653,20 +618,17 @@ private fun Sahari(current: Prayer?) {
                     modifier = Modifier.weight(0.5f)
                 ) {
                     Text(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                         text = "সাহারী শেষ", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,fontFamily = kalPurush)
 
                     Text(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
                         text = "ইফতার", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, fontFamily = kalPurush)
-                    Text(
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        text = "পরবর্তী ${if (current?.isIfterOver == true) "সাহারি" else "ইফতার"}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        fontFamily = kalPurush
-                    )
-                    PulsatingCircles()
+
 
                 }
            Column (
@@ -688,18 +650,40 @@ private fun Sahari(current: Prayer?) {
                          .padding(8.dp),
                      text = current?.nextIfter ?: "-", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
                      fontFamily = kalPurush)
-               Text(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .padding(8.dp),
-                   text = current?.nextTimeLeft ?: "-",
-                   style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
-                   fontFamily = kalPurush
-               )
+
 
             }
 
         }
+
+        Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
+            PulsatingCircles()
+            Text(
+                modifier = Modifier
+                    .padding(8.dp),
+                text = "পরবর্তী ${if (current?.isIfterOver == true) "সাহারি" else "ইফতার"}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = kalPurush
+            )
+            Text(
+                modifier = Modifier
+                    .padding(bottom = 8.dp,top=8.dp),
+                text = current?.nextTimeLeft ?: "-",
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = kalPurush
+            )
+
+        }
+        LinearProgressIndicator(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            progress = current?.ifterProgress ?: 0f,
+            color = Color.White,
+            trackColor = Color.White.copy(0.3f)
+        )
+
+
     }
 }
 
@@ -735,18 +719,18 @@ private fun Prayers(current: Prayer?) {
 
 
                    Column(
-                       modifier = Modifier.weight(0.33f)
+                       modifier = Modifier.weight(0.5f)
                    ) {
                        Text(
                            modifier = Modifier.fillMaxWidth(),
-                           text = "ফজর", style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
+                           text = "ফজর", style = MaterialTheme.typography.bodyMedium)
 
                        Text(
                            modifier = Modifier
                                .fillMaxWidth()
                                .padding(8.dp),
                            text =  "যোহর",
-                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           style = MaterialTheme.typography.bodyMedium,
                            fontFamily = kalPurush
                        )
                        Text(
@@ -754,7 +738,7 @@ private fun Prayers(current: Prayer?) {
                                .fillMaxWidth()
                                .padding(8.dp),
                            text =  "আসর",
-                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           style = MaterialTheme.typography.bodyMedium,
                            fontFamily = kalPurush
                        )
                        Text(
@@ -762,7 +746,7 @@ private fun Prayers(current: Prayer?) {
                                .fillMaxWidth()
                                .padding(8.dp),
                            text =  "মাগরিব",
-                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           style = MaterialTheme.typography.bodyMedium,
                            fontFamily = kalPurush
                        )
 
@@ -772,13 +756,13 @@ private fun Prayers(current: Prayer?) {
                                .fillMaxWidth()
                                .padding(8.dp),
                            text =  "এশা",
-                           style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center,
+                           style = MaterialTheme.typography.bodyMedium,
                            fontFamily = kalPurush
                        )
 
                    }
                    Column(
-                       modifier = Modifier.weight(0.33f)
+                       modifier = Modifier.weight(0.5f)
                    ) {
                        Text(
                            modifier = Modifier.fillMaxWidth(),
@@ -873,7 +857,7 @@ private fun CurrentWaqt(current: Prayer?) {
             .fillMaxWidth(),
         colors = CardDefaults.elevatedCardColors(
             containerColor = if (current?.forbiddenRange == true) MaterialTheme.colorScheme.error else
-                MaterialTheme.colorScheme.primary,
+                Color(51, 150, 30),
             contentColor = Color.White
         )
     ) {
@@ -983,7 +967,8 @@ fun PreviewHomeScreen() {
             name = "মাগরিব",
             PrayerRange(0,1234,1234),
             text="7:10 PM - 5:50 AM",
-            all = listOf()
+            all = listOf(),
+
         ),
         offset = 0,
         onSettingClick = {},

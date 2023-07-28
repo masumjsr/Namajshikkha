@@ -1,63 +1,55 @@
 package com.fsit.sohojnamaj
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Context.POWER_SERVICE
 import android.content.Intent
 import android.content.res.AssetManager
-import android.media.AudioManager
 import android.net.Uri
-import androidx.hilt.navigation.compose.hiltViewModel
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.core.app.NotificationCompat
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.fsit.sohojnamaj.constants.Extra
-import com.fsit.sohojnamaj.data.Prefs
-import com.fsit.sohojnamaj.database.dao.NameDao
-import com.fsit.sohojnamaj.ui.navigation.AppNavHost
-import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.Modifier
+import androidx.core.app.NotificationCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.fsit.sohojnamaj.data.Prefs
+import com.fsit.sohojnamaj.database.dao.NameDao
+import com.fsit.sohojnamaj.ui.navigation.AppNavHost
 import com.fsit.sohojnamaj.ui.navigation.AppState
 import com.fsit.sohojnamaj.ui.navigation.rememberAppState
 import com.fsit.sohojnamaj.ui.theme.NamajShikkhaTheme
 import com.fsit.sohojnamaj.ui.viewModel.MainActivityUiState
 import com.fsit.sohojnamaj.ui.viewModel.MainActivityViewModel
+import com.fsit.sohojnamaj.update.OptionalUpdate
+import com.fsit.sohojnamaj.util.BannerAds
 import com.fsit.sohojnamaj.util.praytimes.Praytime
-import com.fsit.sohojnamaj.util.praytimes.SoundService
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import se.warting.inappupdate.compose.RequireLatestVersion
 import java.io.*
 import java.util.*
 import javax.inject.Inject
@@ -69,12 +61,15 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var suraDao: NameDao
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i("123321", "onCreate: ")
-        val splashScreen=installSplashScreen()
+
+
+
         //createNotification("Hello")
         super.onCreate(savedInstanceState)
         var uiState: MainActivityUiState by mutableStateOf(MainActivityUiState.Loading)
+        val splashScreen=installSplashScreen()
         splashScreen.setKeepOnScreenCondition{
 
                 MainActivityUiState.Loading==uiState
@@ -93,7 +88,6 @@ class MainActivity : ComponentActivity() {
         }
 
         copyAssets(this)
-        volumeControlStream = AudioManager.STREAM_ALARM
         Praytime.configureForegroundService(this)
         if(intent.getBooleanExtra("stop",false)){
             Log.i("123321", "onCreate: stoping service")
@@ -144,12 +138,24 @@ class MainActivity : ComponentActivity() {
             val darkTheme = shouldUseDarkTheme(uiState)
             NamajShikkhaTheme (darkTheme = darkTheme, dynamicColor = false){
                 Locale.setDefault(Locale("bn"))
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val permissionState = rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+
+                    if(!permissionState.status.isGranted){
+                        SideEffect {
+                            permissionState.launchPermissionRequest()
+                        }
+                    }
+
+                }
+
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    RequireLatestVersion {
+                    OptionalUpdate {
                         MainContent()
                     }
                 }
@@ -219,23 +225,13 @@ fun MainContent(
 
     ) {
     Column(modifier = Modifier) {
+        BannerAds(modifier = Modifier.fillMaxWidth())
         AppNavHost(
             navController = appState.navController,
             onBackClick = appState::onBackClick,
             modifier = Modifier.weight(1f)
         )
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth().padding(top = 5.dp),
-            factory = { context ->
-                AdView(context).apply {
-                    setAdSize(AdSize.BANNER)
-                    // Add your adUnitID, this is for testing.
-                    adUnitId = "ca-app-pub-3940256099942544/6300978111"
-                    loadAd(AdRequest.Builder().build())
-                }
-            }
-        )
+        //AdmobBanner()
     }
 }
 

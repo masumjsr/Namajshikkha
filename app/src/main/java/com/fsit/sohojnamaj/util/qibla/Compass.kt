@@ -96,8 +96,9 @@ class Compass(context: Context) : SensorEventListener {
     init {
         sensorManager = context
             .getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         try {
+            gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+
             msensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
         } catch (e: Exception) {
             msensor==null

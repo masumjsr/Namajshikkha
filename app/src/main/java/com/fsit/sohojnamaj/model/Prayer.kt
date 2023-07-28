@@ -16,5 +16,6 @@ data class Prayer(
     val nextTimeLeft: String = "",
     val forbiddenTime: List<ForbiddenTime> = emptyList(),
     val all: List<PrayerRange> = emptyList(),
-    val hijriOffset: Int =0
+    val hijriOffset: Int = 0,
+    val ifterProgress: Float=0f
 )

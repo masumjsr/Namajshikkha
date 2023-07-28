@@ -91,7 +91,7 @@ fun PrayerRange?.timeLeft():String{
         different %= secondsInMilli
 
 
-        "${translateNumbersToBangla(elapsedHours.toString())} ঘন্টা ${translateNumbersToBangla(elapsedMinutes.toString())} মিনিট ${translateNumbersToBangla(elapsedSecond.toString())} সেকেন্ড"
+        "${translateNumbersToBangla(elapsedHours.toString())} ঘন্টা ${translateNumbersToBangla(elapsedMinutes.toString())} মিনিট "
     }
     else return "-"
 }

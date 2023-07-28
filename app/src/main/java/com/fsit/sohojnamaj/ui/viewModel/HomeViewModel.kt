@@ -12,6 +12,7 @@ import com.fsit.sohojnamaj.util.praytimes.Praytime
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -30,6 +31,7 @@ class HomeViewModel @Inject constructor(
        }
     }
 
+    val time= MutableStateFlow(0L)
     val userData=localRepository.userData
     val locationData:StateFlow<String?> =localRepository.userData
 
@@ -57,6 +59,9 @@ class HomeViewModel @Inject constructor(
         )
 
     val currentWaqt= userData
+        .combine(time){a,b->
+            a
+        }
         .map {waqtData->
 
             val waqtDate=Calendar.getInstance();waqtDate.timeInMillis=waqtData.fajr.toDate()
@@ -80,20 +85,6 @@ class HomeViewModel @Inject constructor(
 
 
 
-                    val all=AllPrayerRange(
-                        previousIsha=previousIsha,
-                        fajrRange=fajrRange,
-                        morningForbiddenRange=morningForbiddenRange,
-                        duhaRange=duhaRange,
-                        noonForbidden =noonForbiddern,
-                        dhurRange=dhurRange,
-                        asrRange = asrRange,
-                        eveningForbidden = evenningForbidden,
-                        magribRange=magribRange,
-                        ishaRange = isha,
-                        nextFajrRange = nextFajrRange,
-                        nextMagribRange=nextMagribRange
-                    )
 
 
                     val rangeArray = arrayOf(
@@ -144,6 +135,9 @@ class HomeViewModel @Inject constructor(
                     val nextSahri=if(isIftarOver.not())fajrRange.start else nextFajrRange.start
                     val nextIftar =if(isIftarOver.not())magribRange.start else nextMagribRange.start
                     val timeleft =if(isIftarOver.not())nextIftar.timeLeft() else nextSahri.timeLeft()
+                    val ifterProgress=
+                        ((100*(
+                                System.currentTimeMillis()-if(isIftarOver)magribRange.start else fajrRange.end)/(if(isIftarOver)nextFajrRange.start else magribRange.start - if(isIftarOver)magribRange.start else fajrRange.end))).toFloat()/100f
 
 
 
@@ -161,6 +155,8 @@ class HomeViewModel @Inject constructor(
                         nextIfter = nextIftar.toTimeFormat(),
                         nextSahari = nextSahri.toTimeFormat(),
                         nextTimeLeft = timeleft,
+
+                        ifterProgress=ifterProgress,
                         forbiddenTime = arrayListOf(
                             ForbiddenTime("নিষিদ্ধ সময়(সকাল)",morningForbiddenRange.toTimeFormat()),
                             ForbiddenTime("নিষিদ্ধ সময় (দুপুর)",noonForbiddern.toTimeFormat()),
@@ -265,14 +261,14 @@ class HomeViewModel @Inject constructor(
     init {
 
         viewModelScope.launch {
-            /*while (true) {
-                delay(60*1000)
-                systemTime.value=System.currentTimeMillis()
-            }*/
 
 
+            while (true) {
+                delay(60 * 1000)
+                time.value = System.currentTimeMillis()
+            }
 
-            combine(localRepository.userData,prayerSettingRepository.prayerPreferenceData){ setting, prayer->
+          /*  combine(localRepository.userData,prayerSettingRepository.prayerPreferenceData){ setting, prayer->
 
 
 
@@ -281,7 +277,7 @@ class HomeViewModel @Inject constructor(
 
             }.collectLatest {
 
-            }
+            }*/
 
 
 
